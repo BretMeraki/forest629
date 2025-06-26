@@ -2,6 +2,23 @@
 
 A domain-agnostic life orchestration system built as a Model Context Protocol (MCP) server. Forest provides intelligent task management, scheduling, and progress tracking through a modular, well-documented architecture.
 
+## 🛡️ **NEW: Forest Defense System**
+
+This repository includes the **complete Forest Defense System** - an integrated health monitoring and self-healing system that protects the Forest MCP server:
+
+- **🔍 Real-time Health Monitoring**: Tracks all function calls and component health automatically
+- **⚠️ Contradiction Detection**: Validates component health claims vs. actual status in real-time
+- **🔧 Automatic Self-Healing**: Triggers recovery procedures when issues are detected
+- **💾 Memory Integration**: Persistent health data storage and analysis
+- **🔗 Event-Driven Architecture**: Components communicate through events for coordinated response
+- **📊 MCP Tool Integration**: Defense tools accessible via MCP interface for user interaction
+
+### Defense System Components
+- **`modules/context-guard.js`** - Health validation and contradiction detection engine
+- **`modules/self-heal-manager.js`** - Automatic self-healing and recovery system
+- **`modules/utils/component-health-reporter.js`** - Health monitoring and data collection
+- **`test-defense-*.js`** - Comprehensive test suite for defense system validation
+
 ## 🌟 Features
 
 - **Domain Agnostic**: Works for any learning goal or project type
