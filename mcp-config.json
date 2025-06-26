@@ -1,0 +1,50 @@
+{
+  "mcpServers": {
+    "memory": {
+      "command": "C:\\Users\\schlansk\\local-node\\node-v20.14.0-win-x64\\node.exe",
+      "args": [
+        "C:\\Users\\schlansk\\claude-mcp-configs\\forest-server\\servers\\memory-server.js",
+        "C:\\Users\\schlansk\\claude-mcp-configs\\memory.json"
+      ],
+      "env": {
+        "FOREST_DATA_DIR": "C:\\Users\\schlansk\\.forest-data"
+      }
+    },
+    "filesystem": {
+      "command": "C:\\Users\\schlansk\\local-node\\node-v20.14.0-win-x64\\node.exe",
+      "args": [
+        "C:\\Users\\schlansk\\claude-mcp-configs\\forest-server\\servers\\filesystem-server.js",
+        "--allow", "C:\\Users\\schlansk\\claude-mcp-configs",
+        "--allow", "C:\\Users\\schlansk\\.forest-data",
+        "--allow", "C:\\Users\\schlansk\\Documents"
+      ],
+      "env": {
+        "FOREST_DATA_DIR": "C:\\Users\\schlansk\\.forest-data"
+      }
+    },
+    "forest": {
+      "command": "C:\\Users\\schlansk\\local-node\\node-v20.14.0-win-x64\\node.exe",
+      "args": [
+        "C:\\Users\\schlansk\\claude-mcp-configs\\start-server.js"
+      ],
+      "env": {
+        "FOREST_DATA_DIR": "C:\\Users\\schlansk\\.forest-data"
+      }
+    },
+    "sequential-thinking": {
+      "command": "C:\\Users\\schlansk\\local-node\\node-v20.14.0-win-x64\\node.exe",
+      "args": [
+        "C:\\Users\\schlansk\\claude-mcp-configs\\forest-server\\servers\\sequential-thinking-server.js"
+      ],
+      "env": {
+        "FOREST_DATA_DIR": "C:\\Users\\schlansk\\.forest-data"
+      }
+    },
+    "context7": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@upstash/context7-mcp@latest"],
+      "disabled": false,
+      "autoApprove": []
+    }
+  }
+}

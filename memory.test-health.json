@@ -1,0 +1,18 @@
+{
+  "component_status:task-selector": {
+    "status": "pass",
+    "meta": {
+      "testCount": 3,
+      "failures": 0,
+      "timestamp": "2025-06-26T16:48:11.269Z"
+    }
+  },
+  "component_status:hta-tree-builder": {
+    "status": "fail",
+    "meta": {
+      "testCount": 3,
+      "failures": 2,
+      "timestamp": "2025-06-26T16:48:11.270Z"
+    }
+  }
+}

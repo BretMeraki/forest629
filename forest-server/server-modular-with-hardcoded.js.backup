@@ -1,0 +1,540 @@
+#!/usr/bin/env node
+
+/**
+ * Forest MCP Server v2 - Modular Architecture
+ * Life Orchestration Engine with Intelligent Sequencing
+ * 
+ * This is the modular version of the Forest MCP Server, broken down into 15 specialized modules
+ * for better maintainability, testability, and development efficiency.
+ */
+
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import http from 'http';
+
+// Import all modular components
+import { CoreInfrastructure } from './modules/core-infrastructure.js';
+import { McpHandlers } from './modules/mcp-handlers.js';
+import { ToolRouter } from './modules/tool-router.js';
+import { DataPersistence } from './modules/data-persistence.js';
+import { MemorySync } from './modules/memory-sync.js';
+import { ProjectManagement } from './modules/project-management.js';
+import { HtaTreeBuilder } from './modules/hta-tree-builder.js';
+import { HtaStatus } from './modules/hta-status.js';
+import { ScheduleGenerator } from './modules/schedule-generator.js';
+import { TaskCompletion } from './modules/task-completion.js';
+import { ReasoningEngine } from './modules/reasoning-engine.js';
+import { TaskIntelligence } from './modules/task-intelligence.js';
+import { AnalyticsTools } from './modules/analytics-tools.js';
+import { LlmIntegration } from './modules/llm-integration.js';
+import { IdentityEngine } from './modules/identity-engine.js';
+
+/**
+ * Modular Forest Server Class
+ * Orchestrates all the specialized modules to provide a cohesive MCP server experience
+ */
+class ModularForestServer {
+  constructor() {
+    console.error('🏗️ ModularForestServer constructor starting...');
+    
+    try {
+      console.error('🔧 Initializing core infrastructure...');
+      // Initialize core infrastructure
+      this.core = new CoreInfrastructure();
+      console.error('✓ Core infrastructure initialized');
+    
+      console.error('🔧 Initializing data layer...');
+      // Initialize data layer
+      this.dataPersistence = new DataPersistence(this.core.getDataDir());
+      console.error('✓ Data persistence initialized');
+      
+      console.error('🔧 Initializing memory and sync layer...');
+      // Initialize memory and sync layer
+      this.memorySync = new MemorySync(this.dataPersistence);
+      console.error('✓ Memory sync initialized');
+      
+      console.error('🔧 Initializing project management...');
+      // Initialize project management
+      this.projectManagement = new ProjectManagement(this.dataPersistence, this.memorySync);
+      console.error('✓ Project management initialized');
+      
+      console.error('🔧 Initializing HTA system...');
+      // Initialize HTA system
+      this.htaTreeBuilder = new HtaTreeBuilder(this.dataPersistence, this.projectManagement);
+      this.htaStatus = new HtaStatus(this.dataPersistence, this.projectManagement);
+      console.error('✓ HTA system initialized');
+      
+      console.error('🔧 Initializing scheduling system...');
+      // Initialize scheduling system
+      this.scheduleGenerator = new ScheduleGenerator(this.dataPersistence, this.projectManagement);
+      console.error('✓ Schedule generator initialized');
+      
+      console.error('🔧 Initializing task system...');
+      // Initialize task system
+      this.taskCompletion = new TaskCompletion(this.dataPersistence, this.projectManagement);
+      this.taskIntelligence = new TaskIntelligence(this.dataPersistence, this.projectManagement);
+      console.error('✓ Task system initialized');
+      
+      console.error('🔧 Initializing intelligence engines...');
+      // Initialize intelligence engines
+      this.reasoningEngine = new ReasoningEngine(this.dataPersistence, this.projectManagement);
+      this.llmIntegration = new LlmIntegration(this.dataPersistence, this.projectManagement);
+      this.identityEngine = new IdentityEngine(this.dataPersistence, this.projectManagement);
+      console.error('✓ Intelligence engines initialized');
+      
+      console.error('🔧 Initializing analytics and tools...');
+      // Initialize analytics and tools
+      this.analyticsTools = new AnalyticsTools(this.dataPersistence, this.projectManagement);
+      console.error('✓ Analytics tools initialized');
+      
+      console.error('🔧 Initializing MCP handlers and routing...');
+      // Initialize MCP handlers and routing
+      this.mcpHandlers = new McpHandlers(this.core.getServer());
+      this.toolRouter = new ToolRouter(this.core.getServer(), this);
+      console.error('✓ MCP handlers and routing initialized');
+    
+    // Setup the server
+    console.error('🔧 Setting up server...');
+    this.setupServer();
+    console.error('✓ ModularForestServer constructor completed');
+    } catch (error) {
+      console.error('❌ Error in ModularForestServer constructor:', error.message);
+      console.error('Stack:', error.stack);
+      throw error;
+    }
+  }
+
+  setupServer() {
+    console.error('🔧 Setting up MCP handlers...');
+    try {
+      // Setup MCP handlers and tool routing
+      this.mcpHandlers.setupHandlers();
+      console.error('✓ MCP handlers setup completed');
+      
+      console.error('🔧 Setting up tool router...');
+      this.toolRouter.setupRouter();
+      console.error('✓ Tool router setup completed');
+    } catch (error) {
+      console.error('❌ Error in setupServer:', error.message);
+      console.error('Stack:', error.stack);
+      throw error;
+    }
+  }
+
+  // ===== PROJECT MANAGEMENT METHODS =====
+  
+  async createProject(args) {
+    return await this.projectManagement.createProject(args);
+  }
+
+  async switchProject(projectId) {
+    return await this.projectManagement.switchProject(projectId);
+  }
+
+  async listProjects() {
+    return await this.projectManagement.listProjects();
+  }
+
+  async getActiveProject() {
+    return await this.projectManagement.getActiveProject();
+  }
+
+  async requireActiveProject() {
+    return await this.projectManagement.requireActiveProject();
+  }
+
+  // ===== HTA TREE METHODS =====
+
+  async buildHTATree(pathName, learningStyle, focusAreas) {
+    return await this.htaTreeBuilder.buildHTATree(pathName, learningStyle, focusAreas);
+  }
+
+  async getHTAStatus() {
+    return await this.htaStatus.getHTAStatus();
+  }
+
+  // ===== SCHEDULING METHODS =====
+
+  async generateDailySchedule(date, energyLevel, availableHours, focusType, context) {
+    return await this.scheduleGenerator.generateDailySchedule(date, energyLevel, availableHours, focusType, context);
+  }
+
+  // ===== TASK MANAGEMENT METHODS =====
+
+  async getNextTask(contextFromMemory, energyLevel, timeAvailable) {
+    return await this.taskIntelligence.getNextTask(contextFromMemory, energyLevel, timeAvailable);
+  }
+
+  async completeBlock(blockId, outcome, learned, nextQuestions, energyLevel, difficultyRating, breakthrough, 
+                     engagementLevel, unexpectedResults, newSkillsRevealed, externalFeedback, 
+                     socialReactions, viralPotential, industryConnections, serendipitousEvents) {
+    return await this.taskCompletion.completeBlock(
+      blockId, outcome, learned, nextQuestions, energyLevel, difficultyRating, breakthrough,
+      engagementLevel, unexpectedResults, newSkillsRevealed, externalFeedback,
+      socialReactions, viralPotential, industryConnections, serendipitousEvents
+    );
+  }
+
+  async evolveStrategy(feedback) {
+    return await this.taskIntelligence.evolveStrategy(feedback);
+  }
+
+  // ===== STATUS AND CURRENT STATE METHODS =====
+
+  async currentStatus() {
+    try {
+      const projectId = await this.requireActiveProject();
+      const config = await this.dataPersistence.loadProjectData(projectId, 'config.json');
+      
+      if (!config) {
+        throw new Error('Project configuration not found');
+      }
+
+      const today = new Date().toISOString().split('T')[0];
+      const schedule = await this.dataPersistence.loadProjectData(projectId, `day_${today}.json`);
+      const activePath = config.activePath || 'general';
+      const htaData = await this.loadPathHTA(projectId, activePath);
+      
+      let statusText = `📊 **Current Status - ${projectId}**\n\n`;
+      statusText += `**Goal**: ${config.goal}\n`;
+      statusText += `**Active Path**: ${activePath}\n\n`;
+      
+      // Today's progress
+      if (schedule && schedule.blocks) {
+        const completedBlocks = schedule.blocks.filter(b => b.completed);
+        statusText += `**Today's Progress**: ${completedBlocks.length}/${schedule.blocks.length} blocks completed\n`;
+        
+        const nextBlock = schedule.blocks.find(b => !b.completed);
+        if (nextBlock) {
+          statusText += `**Next Block**: ${nextBlock.title} at ${nextBlock.startTime}\n`;
+        } else {
+          statusText += `**Status**: All blocks completed for today! 🎉\n`;
+        }
+      } else {
+        statusText += `**Today**: No schedule generated yet\n`;
+        statusText += `💡 **Suggestion**: Use \`generate_daily_schedule\` to plan your day\n`;
+      }
+      
+      // HTA status
+      if (htaData && htaData.frontierNodes) {
+        const completedNodes = htaData.frontierNodes.filter(n => n.completed);
+        const availableNodes = this.getAvailableNodes(htaData.frontierNodes);
+        statusText += `\n**Learning Progress**: ${completedNodes.length}/${htaData.frontierNodes.length} tasks completed\n`;
+        statusText += `**Available Tasks**: ${availableNodes.length} ready to start\n`;
+        
+        if (availableNodes.length > 0) {
+          statusText += `💡 **Suggestion**: Use \`get_next_task\` for optimal task selection\n`;
+        } else {
+          statusText += `💡 **Suggestion**: Use \`evolve_strategy\` to generate new tasks\n`;
+        }
+      } else {
+        statusText += `\n**Learning Tree**: Not built yet\n`;
+        statusText += `💡 **Suggestion**: Use \`build_hta_tree\` to create your learning path\n`;
+      }
+
+      return {
+        content: [{
+          type: 'text',
+          text: statusText
+        }],
+        project_status: {
+          projectId,
+          goal: config.goal,
+          activePath,
+          todayProgress: schedule ? `${schedule.blocks?.filter(b => b.completed).length || 0}/${schedule.blocks?.length || 0}` : 'No schedule',
+          htaProgress: htaData ? `${htaData.frontierNodes?.filter(n => n.completed).length || 0}/${htaData.frontierNodes?.length || 0}` : 'No HTA'
+        }
+      };
+    } catch (error) {
+      await this.dataPersistence.logError('currentStatus', error);
+      return {
+        content: [{
+          type: 'text',
+          text: `Error getting current status: ${error.message}`
+        }]
+      };
+    }
+  }
+
+  // ===== ANALYTICS AND TOOLS METHODS =====
+
+  async generateTiimoExport(includeBreaks) {
+    return await this.analyticsTools.generateTiimoExport(includeBreaks);
+  }
+
+  async analyzePerformance() {
+    return await this.analyticsTools.analyzePerformance();
+  }
+
+  async reviewPeriod(days) {
+    return await this.analyticsTools.reviewPeriod(days);
+  }
+
+  async debugTaskSequence() {
+    return await this.analyticsTools.debugTaskSequence();
+  }
+
+  async repairSequence(forceRebuild) {
+    return await this.analyticsTools.repairSequence(forceRebuild);
+  }
+
+  // ===== MEMORY AND SYNC METHODS =====
+
+  async syncForestMemory() {
+    return await this.memorySync.syncForestMemory();
+  }
+
+  // ===== LEARNING PATH METHODS =====
+
+  async focusLearningPath(pathName, duration) {
+    try {
+      const projectId = await this.requireActiveProject();
+      const config = await this.dataPersistence.loadProjectData(projectId, 'config.json');
+      
+      if (!config) {
+        throw new Error('Project configuration not found');
+      }
+
+      // Validate path exists
+      const pathExists = config.learning_paths?.some(p => p.path_name === pathName);
+      if (!pathExists && pathName !== 'general') {
+        throw new Error(`Learning path "${pathName}" not found in project configuration`);
+      }
+
+      // Update active path
+      config.activePath = pathName;
+      config.pathFocusDuration = duration;
+      config.pathFocusStarted = new Date().toISOString();
+      
+      await this.dataPersistence.saveProjectData(projectId, 'config.json', config);
+
+      return {
+        content: [{
+          type: 'text',
+          text: `🎯 **Focus Set**: Now focusing on "${pathName}" path\n\n` +
+               `**Duration**: ${duration}\n` +
+               `**Started**: ${new Date().toLocaleDateString()}\n\n` +
+               `✅ All tasks and schedules will now prioritize this learning path.`
+        }],
+        focused_path: pathName,
+        duration
+      };
+    } catch (error) {
+      await this.dataPersistence.logError('focusLearningPath', error, { pathName, duration });
+      return {
+        content: [{
+          type: 'text',
+          text: `Error setting focus: ${error.message}`
+        }]
+      };
+    }
+  }
+
+  async listLearningPaths() {
+    try {
+      const projectId = await this.requireActiveProject();
+      const config = await this.dataPersistence.loadProjectData(projectId, 'config.json');
+      
+      if (!config) {
+        throw new Error('Project configuration not found');
+      }
+
+      const paths = config.learning_paths || [];
+      const activePath = config.activePath || 'general';
+      
+      let pathsList = `📚 **Learning Paths - ${projectId}**\n\n`;
+      
+      // Always show general path
+      const isGeneralActive = activePath === 'general' ? ' 🎯 **ACTIVE**' : '';
+      pathsList += `• **general** - Overall project learning${isGeneralActive}\n`;
+      
+      // Show specific paths
+      for (const path of paths) {
+        const isActive = activePath === path.path_name ? ' 🎯 **ACTIVE**' : '';
+        const priority = path.priority ? ` (${path.priority} priority)` : '';
+        pathsList += `• **${path.path_name}**${priority}${isActive}\n`;
+        
+        if (path.interests && path.interests.length > 0) {
+          pathsList += `  Interests: ${path.interests.join(', ')}\n`;
+        }
+      }
+      
+      pathsList += `\n💡 Use \`focus_learning_path\` to switch focus between paths`;
+
+      return {
+        content: [{
+          type: 'text',
+          text: pathsList
+        }],
+        learning_paths: ['general', ...paths.map(p => p.path_name)],
+        active_path: activePath
+      };
+    } catch (error) {
+      await this.dataPersistence.logError('listLearningPaths', error);
+      return {
+        content: [{
+          type: 'text',
+          text: `Error listing learning paths: ${error.message}`
+        }]
+      };
+    }
+  }
+
+  // ===== INTELLIGENCE ENGINE METHODS =====
+
+  async analyzeComplexityEvolution() {
+    return await this.llmIntegration.analyzeComplexityEvolution();
+  }
+
+  async analyzeIdentityTransformation() {
+    return await this.identityEngine.analyzeIdentityTransformation();
+  }
+
+  async analyzeReasoning(includeDetailedAnalysis) {
+    return await this.reasoningEngine.analyzeReasoning(includeDetailedAnalysis);
+  }
+
+  // ===== UTILITY METHODS =====
+
+  getAvailableNodes(nodes) {
+    const completedNodeIds = nodes.filter(n => n.completed).map(n => n.id);
+    
+    return nodes.filter(node => {
+      if (node.completed) return false;
+      
+      if (node.prerequisites && node.prerequisites.length > 0) {
+        return node.prerequisites.every(prereq => 
+          completedNodeIds.includes(prereq) || 
+          nodes.some(n => n.title === prereq && n.completed)
+        );
+      }
+      
+      return true;
+    });
+  }
+
+  async loadPathHTA(projectId, pathName) {
+    if (pathName === 'general') {
+      return await this.dataPersistence.loadProjectData(projectId, 'hta.json');
+    } else {
+      return await this.dataPersistence.loadPathData(projectId, pathName, 'hta.json');
+    }
+  }
+
+  // ===== SERVER LIFECYCLE METHODS =====
+
+  async run() {
+    try {
+      console.error('🚀 Starting Forest MCP Server run method...');
+      
+      console.error('🔧 Getting server from core...');
+      const server = this.core.getServer();
+      console.error('✓ Server obtained');
+      
+      console.error('🔧 Creating StdioServerTransport...');
+      const transport = new StdioServerTransport();
+      console.error('✓ Transport created');
+      
+      console.error('🔧 Connecting server to transport...');
+      await server.connect(transport);
+      console.error('✓ Server connected');
+      
+      console.error('🌳 Forest MCP Server v2 (Modular) started successfully!');
+      console.error('📁 Data directory:', this.core.getDataDir());
+      console.error('🔧 Modules loaded: 15 specialized components');
+      
+      // Start HTTP API if enabled
+      if (this.core.isHttpApiEnabled()) {
+        console.error('🔧 Starting HTTP API...');
+        this.startHttpApi();
+      }
+    } catch (error) {
+      console.error('❌ Error in run method:', error.message);
+      console.error('Stack:', error.stack);
+      throw error;
+    }
+  }
+
+  startHttpApi() {
+    const httpServer = http.createServer((req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        service: 'Forest MCP Server v2',
+        architecture: 'Modular',
+        modules: 15,
+        status: 'running',
+        dataDir: this.core.getDataDir()
+      }));
+    });
+
+    httpServer.listen(3001, () => {
+      console.error('📡 HTTP API running on http://localhost:3001');
+    });
+  }
+}
+
+// Enhanced debugging for startup issues
+process.on('uncaughtException', (err) => {
+  console.error('❌ UNCAUGHT EXCEPTION in Forest MCP Server:');
+  console.error('Error:', err.message);
+  console.error('Stack:', err.stack);
+  console.error('Time:', new Date().toISOString());
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('❌ UNHANDLED PROMISE REJECTION in Forest MCP Server:');
+  console.error('Reason:', reason);
+  console.error('Promise:', promise);
+  console.error('Time:', new Date().toISOString());
+  process.exit(1);
+});
+
+// Debug module imports
+console.error('🔧 Forest MCP Server - Starting module imports...');
+try {
+  console.error('✓ Importing StdioServerTransport');
+  
+  console.error('🔧 Importing core modules...');
+  
+  console.error('  ✓ CoreInfrastructure...');
+} catch (err) {
+  console.error('❌ Failed to import modules:', err.message);
+  throw err;
+}
+
+// ===== MAIN EXECUTION =====
+
+console.error('📋 Checking if this is the main module...');
+console.error('import.meta.url:', import.meta.url);
+console.error('process.argv[1]:', process.argv[1]);
+
+// Normalize paths for comparison (handle Windows path differences)
+const currentFileUrl = import.meta.url;
+const argvPath = `file:///${process.argv[1].replace(/\\/g, '/')}`;
+console.error('Normalized argv path:', argvPath);
+console.error('Comparison:', currentFileUrl === argvPath);
+
+if (currentFileUrl === argvPath) {
+  console.error('🚀 This is the main module - starting Forest MCP Server...');
+  
+  try {
+    console.error('🔧 Creating ModularForestServer instance...');
+    const server = new ModularForestServer();
+    console.error('✓ ModularForestServer created successfully');
+    
+    console.error('🔧 Running server...');
+    server.run().catch((error) => {
+      console.error('❌ Error in server.run():', error.message);
+      console.error('Stack:', error.stack);
+      process.exit(1);
+    });
+  } catch (error) {
+    console.error('❌ Error creating/running server:', error.message);
+    console.error('Stack:', error.stack);
+    process.exit(1);
+  }
+} else {
+  console.error('📦 This module is being imported, not executed directly');
+}
+
+export { ModularForestServer };
