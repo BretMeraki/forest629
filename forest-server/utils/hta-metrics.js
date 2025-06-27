@@ -15,7 +15,7 @@ export function countFrontierNodes(htaData) {
   if (!htaData) return 0;
   
   // Check both field name variants for compatibility
-  const nodes = htaData.frontier_nodes || htaData.frontierNodes || [];
+  const nodes = htaData.frontierNodes || htaData.frontierNodes || [];
   return Array.isArray(nodes) ? nodes.length : 0;
 }
 
@@ -27,8 +27,8 @@ export function countFrontierNodes(htaData) {
 export function countCompletedNodes(htaData) {
   if (!htaData) return 0;
   
-  const completedNodes = htaData.completed_nodes || [];
-  const frontierNodes = htaData.frontier_nodes || htaData.frontierNodes || [];
+  const completedNodes = htaData.completedNodes || [];
+  const frontierNodes = htaData.frontierNodes || htaData.frontierNodes || [];
   const completedInFrontier = Array.isArray(frontierNodes) 
     ? frontierNodes.filter(n => n && n.completed).length 
     : 0;
@@ -44,7 +44,7 @@ export function countCompletedNodes(htaData) {
 export function getAvailableNodes(htaData) {
   if (!htaData) return [];
   
-  const frontierNodes = htaData.frontier_nodes || htaData.frontierNodes || [];
+  const frontierNodes = htaData.frontierNodes || htaData.frontierNodes || [];
   if (!Array.isArray(frontierNodes)) return [];
   
   return frontierNodes.filter(node => 
@@ -64,7 +64,7 @@ export function getAvailableNodes(htaData) {
 export function getBlockedNodes(htaData) {
   if (!htaData) return [];
   
-  const frontierNodes = htaData.frontier_nodes || htaData.frontierNodes || [];
+  const frontierNodes = htaData.frontierNodes || htaData.frontierNodes || [];
   if (!Array.isArray(frontierNodes)) return [];
   
   return frontierNodes.filter(node => 
@@ -99,7 +99,7 @@ export function calculateProgress(htaData) {
   const blockedCount = getBlockedNodes(htaData).length;
   
   // Total includes both frontier and completed nodes
-  const total = frontierCount + (htaData.completed_nodes?.length || 0);
+  const total = frontierCount + (htaData.completedNodes?.length || 0);
   const percentage = total > 0 ? Math.round((completedCount / total) * 100) : 0;
   
   return {
@@ -123,8 +123,8 @@ export function countTasksByBranch(htaData, branchName) {
     return { total: 0, completed: 0, available: 0, blocked: 0 };
   }
   
-  const frontierNodes = htaData.frontier_nodes || htaData.frontierNodes || [];
-  const completedNodes = htaData.completed_nodes || [];
+  const frontierNodes = htaData.frontierNodes || htaData.frontierNodes || [];
+  const completedNodes = htaData.completedNodes || [];
   
   // Filter frontier nodes by branch
   const branchFrontierNodes = Array.isArray(frontierNodes) 
@@ -160,7 +160,7 @@ export function countTasksByBranch(htaData, branchName) {
 export function getBranchProgress(htaData) {
   if (!htaData) return {};
   
-  const frontierNodes = htaData.frontier_nodes || htaData.frontierNodes || [];
+  const frontierNodes = htaData.frontierNodes || htaData.frontierNodes || [];
   const branches = new Set();
   
   // Collect all branch names
@@ -172,8 +172,8 @@ export function getBranchProgress(htaData) {
     });
   }
   
-  if (htaData.completed_nodes && Array.isArray(htaData.completed_nodes)) {
-    htaData.completed_nodes.forEach(node => {
+  if (htaData.completedNodes && Array.isArray(htaData.completedNodes)) {
+    htaData.completedNodes.forEach(node => {
       if (node && node.branch) {
         branches.add(node.branch);
       }
@@ -204,17 +204,17 @@ export function validateHTAData(htaData) {
   }
   
   // Check for required fields
-  if (!htaData.frontier_nodes && !htaData.frontierNodes) {
-    issues.push('Missing frontier nodes (both frontier_nodes and frontierNodes are undefined)');
+  if (!htaData.frontierNodes && !htaData.frontierNodes) {
+    issues.push('Missing frontier nodes (both frontierNodes and frontierNodes are undefined)');
   }
   
   // Check field consistency
-  if (htaData.frontier_nodes && htaData.frontierNodes) {
-    warnings.push('Both frontier_nodes and frontierNodes are present - using frontier_nodes');
+  if (htaData.frontierNodes && htaData.frontierNodes) {
+    warnings.push('Both frontierNodes and frontierNodes are present - using frontierNodes');
   }
   
   // Validate frontier nodes structure
-  const frontierNodes = htaData.frontier_nodes || htaData.frontierNodes || [];
+  const frontierNodes = htaData.frontierNodes || htaData.frontierNodes || [];
   if (!Array.isArray(frontierNodes)) {
     issues.push('Frontier nodes is not an array');
   } else {
@@ -233,7 +233,7 @@ export function validateHTAData(htaData) {
   }
   
   // Validate completed nodes structure
-  if (htaData.completed_nodes && !Array.isArray(htaData.completed_nodes)) {
+  if (htaData.completedNodes && !Array.isArray(htaData.completedNodes)) {
     issues.push('Completed nodes is not an array');
   }
   

@@ -46,7 +46,7 @@ export class HtaStatus {
         hta_status: {
           path: activePath,
           strategic_branches: htaData.strategicBranches || [],
-          frontier_nodes: htaData.frontierNodes || [],
+          frontierNodes: htaData.frontierNodes || [],
           progress: calculateProgress(htaData),
           last_updated: htaData.lastUpdated,
         },
@@ -74,7 +74,7 @@ export class HtaStatus {
 
   generateStatusReport(htaData, pathName) {
     const branches = htaData.strategicBranches || [];
-    const nodes = htaData.frontierNodes || htaData.frontier_nodes || [];
+    const nodes = htaData.frontierNodes || htaData.frontierNodes || [];
     const progress = calculateProgress(htaData);
 
     let report = `**HTA Tree Status - ${pathName} Path**\\n\\n`;

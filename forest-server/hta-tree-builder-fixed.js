@@ -37,7 +37,7 @@ export class HtaTreeBuilder {
         context: config.context || '',
         strategicBranches: [],
         frontierNodes: [],
-        completed_nodes: [],
+        completedNodes: [],
         collaborative_sessions: [],
         generation_context: {
           method: 'collaborative_ai',

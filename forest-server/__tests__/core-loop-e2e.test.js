@@ -79,7 +79,7 @@ describe('Core loop end-to-end', () => {
 
   // ENHANCED: Add comprehensive end-to-end test for HTA generation fix
   describe('HTA Generation Fix Verification', () => {
-    it('should create project, build HTA tree, and verify frontier_nodes is populated', async () => {
+    it('should create project, build HTA tree, and verify frontierNodes is populated', async () => {
       const dp = new MemoryDP();
       const pm = new DummyPM();
       
@@ -99,23 +99,23 @@ describe('Core loop end-to-end', () => {
       // Verify HTA structure was created and stored
       const htaData = await dp.loadProjectData('proj1', 'hta.json');
       expect(htaData).toBeTruthy();
-      expect(htaData.frontier_nodes).toBeDefined();
-      expect(Array.isArray(htaData.frontier_nodes)).toBe(true);
-      expect(htaData.frontier_nodes.length).toBeGreaterThan(0);
+      expect(htaData.frontierNodes).toBeDefined();
+      expect(Array.isArray(htaData.frontierNodes)).toBe(true);
+      expect(htaData.frontierNodes.length).toBeGreaterThan(0);
     });
 
     it('should call getNextTask after HTA generation and expect actual tasks', async () => {
       const dp = new MemoryDP();
       const pm = new DummyPM();
       
-      // Setup project with HTA data containing frontier_nodes
+      // Setup project with HTA data containing frontierNodes
       await dp.saveProjectData('proj1', 'config.json', {
         goal: 'Learn JavaScript',
         activePath: 'general'
       });
       
       await dp.saveProjectData('proj1', 'hta.json', {
-        frontier_nodes: [
+        frontierNodes: [
           {
             id: 'task_1',
             title: 'Learn Variables',
@@ -127,8 +127,8 @@ describe('Core loop end-to-end', () => {
             completed: false
           }
         ],
-        completed_nodes: [],
-        hierarchy_metadata: {
+        completedNodes: [],
+        hierarchyMetadata: {
           total_tasks: 1,
           total_branches: 1
         }
@@ -159,7 +159,7 @@ describe('Core loop end-to-end', () => {
       const htaData = await dp.loadProjectData('proj1', 'hta.json');
       
       // Verify each task has all required fields
-      htaData.frontier_nodes.forEach(task => {
+      htaData.frontierNodes.forEach(task => {
         expect(task).toHaveProperty('id');
         expect(task).toHaveProperty('title');
         expect(task).toHaveProperty('description');
@@ -181,7 +181,7 @@ describe('Core loop end-to-end', () => {
       });
     });
 
-    it('should verify both frontier_nodes and frontierNodes fields are populated for compatibility', async () => {
+    it('should verify both frontierNodes and frontierNodes fields are populated for compatibility', async () => {
       const dp = new MemoryDP();
       const pm = new DummyPM();
       
@@ -196,15 +196,15 @@ describe('Core loop end-to-end', () => {
       const htaData = await dp.loadProjectData('proj1', 'hta.json');
       
       // Both field variants should be populated
-      expect(htaData.frontier_nodes).toBeDefined();
       expect(htaData.frontierNodes).toBeDefined();
-      expect(Array.isArray(htaData.frontier_nodes)).toBe(true);
+      expect(htaData.frontierNodes).toBeDefined();
       expect(Array.isArray(htaData.frontierNodes)).toBe(true);
-      expect(htaData.frontier_nodes.length).toBe(htaData.frontierNodes.length);
-      expect(htaData.frontier_nodes.length).toBeGreaterThan(0);
+      expect(Array.isArray(htaData.frontierNodes)).toBe(true);
+      expect(htaData.frontierNodes.length).toBe(htaData.frontierNodes.length);
+      expect(htaData.frontierNodes.length).toBeGreaterThan(0);
       
       // Content should be identical
-      expect(htaData.frontier_nodes).toEqual(htaData.frontierNodes);
+      expect(htaData.frontierNodes).toEqual(htaData.frontierNodes);
     });
 
     it('should run complete workflow and confirm diagnostic issue is resolved', async () => {
@@ -218,16 +218,16 @@ describe('Core loop end-to-end', () => {
         activePath: 'general'
       });
 
-      // Step 1: Build HTA tree (this should populate frontier_nodes)
+      // Step 1: Build HTA tree (this should populate frontierNodes)
       const htaBuilder = new HtaTreeBuilder(dp, pm, llmMock);
       const buildResult = await htaBuilder.buildHTATree('general');
       
       expect(buildResult.success).toBe(true);
       expect(buildResult.requires_branch_generation).toBe(false); // Should be fulfilled
       
-      // Step 2: Verify frontier_nodes is populated (diagnostic issue resolved)
+      // Step 2: Verify frontierNodes is populated (diagnostic issue resolved)
       const htaData = await dp.loadProjectData('proj1', 'hta.json');
-      expect(htaData.frontier_nodes.length).toBeGreaterThan(0);
+      expect(htaData.frontierNodes.length).toBeGreaterThan(0);
       
       // Step 3: Get next task should work (not return "No available tasks")
       const taskIntel = new TaskIntelligence(dp, pm);
@@ -237,8 +237,8 @@ describe('Core loop end-to-end', () => {
       expect(nextTaskResult.content[0].text).toContain('Next Recommended Task');
       
       // Step 4: Verify complete workflow integrity
-      expect(htaData.hierarchy_metadata.total_tasks).toBeGreaterThan(0);
-      expect(htaData.hierarchy_metadata.total_branches).toBeGreaterThan(0);
+      expect(htaData.hierarchyMetadata.total_tasks).toBeGreaterThan(0);
+      expect(htaData.hierarchyMetadata.total_branches).toBeGreaterThan(0);
     });
   });
 }); 

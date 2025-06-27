@@ -16,17 +16,17 @@ describe('HTA Metrics Utility', () => {
   describe('calculateProgress', () => {
     test('handles snake_case fields correctly', () => {
       const htaData = {
-        frontier_nodes: [
+        frontierNodes: [
           { id: '1', completed: false },
           { id: '2', completed: true },
           { id: '3', completed: false },
         ],
-        completed_nodes: [{ id: '4' }, { id: '5' }],
+        completedNodes: [{ id: '4' }, { id: '5' }],
       };
 
       const result = calculateProgress(htaData);
       expect(result).toEqual({
-        completed: 3, // 1 completed in frontier + 2 in completed_nodes
+        completed: 3, // 1 completed in frontier + 2 in completedNodes
         total: 5, // 3 frontier + 2 completed
         percentage: 60,
       });
@@ -51,7 +51,7 @@ describe('HTA Metrics Utility', () => {
 
     test('handles mixed field naming', () => {
       const htaData = {
-        frontier_nodes: [{ id: '1', completed: true }],
+        frontierNodes: [{ id: '1', completed: true }],
         completedNodes: [{ id: '2' }, { id: '3' }],
       };
 
@@ -65,8 +65,8 @@ describe('HTA Metrics Utility', () => {
 
     test('handles empty arrays', () => {
       const htaData = {
-        frontier_nodes: [],
-        completed_nodes: [],
+        frontierNodes: [],
+        completedNodes: [],
       };
 
       const result = calculateProgress(htaData);
@@ -120,17 +120,17 @@ describe('HTA Metrics Utility', () => {
       expect(countFrontierNodes(htaData)).toBe(3);
     });
 
-    test('counts frontier_nodes array', () => {
+    test('counts frontierNodes array', () => {
       const htaData = {
-        frontier_nodes: [{ id: '1' }, { id: '2' }],
+        frontierNodes: [{ id: '1' }, { id: '2' }],
       };
 
       expect(countFrontierNodes(htaData)).toBe(2);
     });
 
-    test('prefers frontier_nodes when both fields present', () => {
+    test('prefers frontierNodes when both fields present', () => {
       const htaData = {
-        frontier_nodes: [{ id: '1' }, { id: '2' }],
+        frontierNodes: [{ id: '1' }, { id: '2' }],
         frontierNodes: [{ id: '3' }, { id: '4' }, { id: '5' }],
       };
 
@@ -214,9 +214,9 @@ describe('HTA Metrics Utility', () => {
   });
 
   describe('countCompletedNodes', () => {
-    test('counts from completed_nodes array', () => {
+    test('counts from completedNodes array', () => {
       const htaData = {
-        completed_nodes: [{ id: '1' }, { id: '2' }],
+        completedNodes: [{ id: '1' }, { id: '2' }],
         frontierNodes: [],
       };
 
@@ -237,7 +237,7 @@ describe('HTA Metrics Utility', () => {
 
     test('combines both sources', () => {
       const htaData = {
-        completed_nodes: [{ id: '1' }, { id: '2' }],
+        completedNodes: [{ id: '1' }, { id: '2' }],
         frontierNodes: [
           { id: '3', completed: true },
           { id: '4', completed: false },

@@ -139,13 +139,13 @@ export class ScheduleGenerator {
   getReadyTasks(htaData) {
     // Attempt to extract actionable tasks using new hierarchy utilities first
     let nodes = flattenToActionTasks(
-      htaData.frontier_nodes || htaData.frontierNodes || []
+      htaData.frontierNodes || htaData.frontierNodes || []
     );
 
     if (nodes.length === 0) {
       // Fallback to legacy behaviour if hierarchy utils return empty (e.g. flat structure)
-      if (htaData.frontier_nodes && Array.isArray(htaData.frontier_nodes)) {
-        nodes = htaData.frontier_nodes;
+      if (htaData.frontierNodes && Array.isArray(htaData.frontierNodes)) {
+        nodes = htaData.frontierNodes;
       } else if (htaData.frontierNodes && Array.isArray(htaData.frontierNodes)) {
         nodes = htaData.frontierNodes;
       } else {

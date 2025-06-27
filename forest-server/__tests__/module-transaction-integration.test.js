@@ -82,8 +82,8 @@ describe('Module-Specific Transaction Tests', () => {
       const htaData = await dataPersistence.loadPathData('test-hta-tx', 'general', 'hta.json');
       expect(htaData).toBeDefined();
       expect(htaData.goal).toBe('Test Goal');
-      expect(htaData.frontier_nodes).toBeDefined();
-      expect(htaData.frontier_nodes.length).toBeGreaterThan(0);
+      expect(htaData.frontierNodes).toBeDefined();
+      expect(htaData.frontierNodes.length).toBeGreaterThan(0);
     });
 
     test('should rollback HTA creation on validation failure', async () => {
@@ -108,7 +108,7 @@ describe('Module-Specific Transaction Tests', () => {
       // Verify HTA data exists (skeleton fallback)
       const htaData = await dataPersistence.loadPathData('test-hta-rollback', 'general', 'hta.json');
       expect(htaData).toBeDefined();
-      expect(htaData.frontier_nodes).toBeDefined();
+      expect(htaData.frontierNodes).toBeDefined();
     });
 
     test('should handle transaction rollback on file system errors', async () => {
@@ -296,8 +296,8 @@ describe('Module-Specific Transaction Tests', () => {
       const htaData = await dataPersistence.loadPathData('test-hta-tx', 'general', 'hta.json');
       expect(htaData).toBeDefined();
       expect(htaData.goal).toBe('Test Goal');
-      expect(htaData.frontier_nodes).toBeDefined();
-      expect(htaData.frontier_nodes.length).toBeGreaterThan(0);
+      expect(htaData.frontierNodes).toBeDefined();
+      expect(htaData.frontierNodes.length).toBeGreaterThan(0);
     });
 
     test('should rollback HTA creation on validation failure', async () => {
@@ -322,7 +322,7 @@ describe('Module-Specific Transaction Tests', () => {
       // Verify HTA data exists (skeleton fallback)
       const htaData = await dataPersistence.loadPathData('test-hta-rollback', 'general', 'hta.json');
       expect(htaData).toBeDefined();
-      expect(htaData.frontier_nodes).toBeDefined();
+      expect(htaData.frontierNodes).toBeDefined();
     });
 
     test('should handle transaction rollback on file system errors', async () => {

@@ -100,13 +100,28 @@ export class TaskCompletion {
       serendipitousEvents: serendip = [],
     } = opts;
 
-    try {
+    // ENHANCED: Use atomic transaction wrapper for all completion operations
+    return await this.dataPersistence.executeInTransaction(async (transaction) => {
+      // ENHANCED: Validate inputs with null checks
+      if (!blockId || (typeof blockId !== 'string' && typeof blockId !== 'number')) {
+        throw new Error('Invalid blockId: must be a non-empty string or number');
+      }
+      if (!out || typeof out !== 'string' || out.trim().length === 0) {
+        throw new Error('Invalid outcome: must be a non-empty string');
+      }
+      if (typeof en !== 'number' || en < 1 || en > 5) {
+        throw new Error('Invalid energyLevel: must be a number between 1 and 5');
+      }
+
       const projectId = await this.projectManagement.requireActiveProject();
       const config = await this.dataPersistence.loadProjectData(projectId, FILE_NAMES.CONFIG);
 
-      if (!config) {
-        throw new Error('Project configuration not found');
+      if (!config || typeof config !== 'object') {
+        throw new Error('Project configuration not found or invalid');
       }
+
+      // ENHANCED: Ensure activePath is defined
+      const activePath = config.activePath || DEFAULT_PATHS.GENERAL;
 
       // Load today's schedule to find the block
       const today = new Date().toISOString().split('T')[0];
@@ -191,78 +206,15 @@ export class TaskCompletion {
           };
           markDone(htaNode);
           // also snake_case array if present
-          if (htaData.frontier_nodes) {
-            markDone(htaData.frontier_nodes.find(n => n.id === blockId));
+          if (htaData.frontierNodes) {
+            markDone(htaData.frontierNodes.find(n => n.id === blockId));
           }
           logger.debug('[TaskCompletion] HTA node after markDone', { htaNode });
 
-          // Begin transaction for atomic completion updates
-          const transaction = this.dataPersistence.beginTransaction();
+          // ENHANCED: Save all updates within the atomic transaction
+          // Save updated HTA data
+          await this.savePathHTA(projectId, activePath, htaData, transaction);
 
-          try {
-            // Save updated HTA data within transaction
-            await this.savePathHTA(projectId, config.activePath || DEFAULT_PATHS.GENERAL, htaData, transaction,
-              htaData,
-              transaction
-            );
-
-            // Save updated schedule within transaction
-            await this.dataPersistence.saveProjectData(
-              projectId,
-              `day_${today}.json`,
-              schedule,
-              transaction
-            );
-
-            // Update learning history within transaction
-            await this.updateLearningHistory(
-              projectId,
-              config.activePath || DEFAULT_PATHS.GENERAL,
-              block,
-              transaction
-            );
-
-            // Commit transaction
-            await this.dataPersistence.commitTransaction(transaction);
-          } catch (error) {
-            // Rollback on failure
-            await this.dataPersistence.rollbackTransaction(transaction);
-            throw error;
-          }
-        } else {
-          // If no HTA node found, still save schedule with transaction
-          const transaction = this.dataPersistence.beginTransaction();
-
-          try {
-            // Save updated schedule
-            await this.dataPersistence.saveProjectData(
-              projectId,
-              `day_${today}.json`,
-              schedule,
-              transaction
-            );
-
-            // Update learning history
-            await this.updateLearningHistory(
-              projectId,
-              config.activePath || DEFAULT_PATHS.GENERAL,
-              block,
-              transaction
-            );
-
-            // Commit transaction
-            await this.dataPersistence.commitTransaction(transaction);
-          } catch (error) {
-            // Rollback on failure
-            await this.dataPersistence.rollbackTransaction(transaction);
-            throw error;
-          }
-        }
-      } else {
-        // If no frontierNodes at all, still save schedule with transaction
-        const transaction = this.dataPersistence.beginTransaction();
-
-        try {
           // Save updated schedule
           await this.dataPersistence.saveProjectData(
             projectId,
@@ -272,20 +224,28 @@ export class TaskCompletion {
           );
 
           // Update learning history
-          await this.updateLearningHistory(
+          await this.updateLearningHistory(projectId, activePath, block, transaction);
+        } else {
+          // If no HTA node found, still save schedule
+          await this.dataPersistence.saveProjectData(
             projectId,
-            config.activePath || DEFAULT_PATHS.GENERAL,
-            block,
+            `day_${today}.json`,
+            schedule,
             transaction
           );
 
-          // Commit transaction
-          await this.dataPersistence.commitTransaction(transaction);
-        } catch (error) {
-          // Rollback on failure
-          await this.dataPersistence.rollbackTransaction(transaction);
-          throw error;
+          await this.updateLearningHistory(projectId, activePath, block, transaction);
         }
+      } else {
+        // If no frontierNodes at all, still save schedule
+        await this.dataPersistence.saveProjectData(
+          projectId,
+          `day_${today}.json`,
+          schedule,
+          transaction
+        );
+
+        await this.updateLearningHistory(projectId, activePath, block, transaction);
       }
 
       // Emit block completion event for decoupled strategy evolution
@@ -317,7 +277,8 @@ export class TaskCompletion {
         opportunity_analysis: opportunityResponse,
         next_suggested_action: this.suggestNextAction(block, schedule),
       };
-    } catch (error) {
+    }, 'completeBlock') // End of executeInTransaction wrapper
+    .catch(async (error) => {
       await this.dataPersistence.logError('completeBlock', error, { blockId, outcome: out });
       return {
         content: [
@@ -327,7 +288,7 @@ export class TaskCompletion {
           },
         ],
       };
-    }
+    });
   }
 
   async updateLearningHistory(projectId, pathName, block, transaction = null) {

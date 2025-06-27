@@ -887,8 +887,8 @@ class ForestServer {
 
       const nextBlock = schedule?.time_blocks?.find((b) => !b.completed);
       const readyNodes =
-        hta?.frontier_nodes?.filter((n) => n.status === "ready") || [];
-      const completedNodes = hta?.completed_nodes || [];
+        hta?.frontierNodes?.filter((n) => n.status === "ready") || [];
+      const completedNodes = hta?.completedNodes || [];
       const recentTopics = learningHistory?.completed_topics?.slice(-5) || [];
       const knowledgeGaps = learningHistory?.knowledge_gaps?.slice(-3) || [];
 
@@ -1417,8 +1417,8 @@ class ForestServer {
       created: new Date().toISOString(),
       // Ensure branches and nodes are arrays
       branches: Array.isArray(generatedBranches) ? generatedBranches : [],
-      frontier_nodes: Array.isArray(generatedNodes) ? generatedNodes : [],
-      completed_nodes: [],
+      frontierNodes: Array.isArray(generatedNodes) ? generatedNodes : [],
+      completedNodes: [],
       last_evolution: new Date().toISOString(),
     };
     const saved = await this.savePathData(
@@ -1431,7 +1431,7 @@ class ForestServer {
       throw new Error("Failed to save HTA tree");
     }
     const branches = Array.isArray(hta.branches) ? hta.branches : [];
-    const nodes = Array.isArray(hta.frontier_nodes) ? hta.frontier_nodes : [];
+    const nodes = Array.isArray(hta.frontierNodes) ? hta.frontierNodes : [];
 
     const branchSummary =
       branches.length > 0
@@ -1878,11 +1878,11 @@ class ForestServer {
     const activeBranches = Array.isArray(hta.branches)
       ? hta.branches.filter((b) => b.status === "active")
       : [];
-    const readyNodes = Array.isArray(hta.frontier_nodes)
-      ? hta.frontier_nodes.filter((n) => n.status === "ready")
+    const readyNodes = Array.isArray(hta.frontierNodes)
+      ? hta.frontierNodes.filter((n) => n.status === "ready")
       : [];
-    const completedNodes = Array.isArray(hta.completed_nodes)
-      ? hta.completed_nodes
+    const completedNodes = Array.isArray(hta.completedNodes)
+      ? hta.completedNodes
       : [];
 
     const branchStatus = activeBranches
@@ -2018,7 +2018,7 @@ class ForestServer {
 
     // Get all available components
     const learningNodes =
-      hta.frontier_nodes?.filter((n) => n.status === "ready") || [];
+      hta.frontierNodes?.filter((n) => n.status === "ready") || [];
     const habitNodes =
       hta.habit_nodes?.filter((n) => n.status === "ready") || [];
     const constraints = projectConfig.constraints || {};
@@ -2495,14 +2495,14 @@ class ForestServer {
     }
 
     // Move completed node to completed list
-    const nodeIndex = hta.frontier_nodes.findIndex(
+    const nodeIndex = hta.frontierNodes.findIndex(
       (n) => n.id === completedBlock.id,
     );
     if (nodeIndex !== -1) {
-      const completedNode = hta.frontier_nodes.splice(nodeIndex, 1)[0];
+      const completedNode = hta.frontierNodes.splice(nodeIndex, 1)[0];
       completedNode.completed_date = new Date().toISOString();
       completedNode.actual_difficulty = difficultyRating;
-      hta.completed_nodes.push(completedNode);
+      hta.completedNodes.push(completedNode);
     }
 
     // Generate logical next steps based on what was learned
@@ -2565,7 +2565,7 @@ class ForestServer {
     }
 
     // Dynamic Dependency Tracking - Task completion reveals new possibilities
-    const completedTask = hta.completed_nodes[hta.completed_nodes.length - 1]; // Most recently completed
+    const completedTask = hta.completedNodes[hta.completedNodes.length - 1]; // Most recently completed
     const emergentOpportunities = this.detectEmergentOpportunities(
       completedTask || completedBlock,
       completionContext,
@@ -2575,25 +2575,25 @@ class ForestServer {
     }
 
     // Adaptive Dependency Invalidation - Completed task may make others unnecessary
-    hta.frontier_nodes = this.invalidateUnnecessaryTasks(
-      hta.frontier_nodes,
+    hta.frontierNodes = this.invalidateUnnecessaryTasks(
+      hta.frontierNodes,
       completedTask || completedBlock,
       completionContext,
     );
 
     // Add tasks to the end to maintain sequence flow
-    hta.frontier_nodes.push(...newTasks);
+    hta.frontierNodes.push(...newTasks);
 
     // Adjust difficulty of remaining nodes based on feedback
     if (difficultyRating === 5) {
       // Too hard - add easier stepping stones
-      hta.frontier_nodes = hta.frontier_nodes.map((node) => ({
+      hta.frontierNodes = hta.frontierNodes.map((node) => ({
         ...node,
         magnitude: Math.max(3, node.magnitude - 1),
       }));
     } else if (difficultyRating === 1) {
       // Too easy - increase challenge
-      hta.frontier_nodes = hta.frontier_nodes.map((node) => ({
+      hta.frontierNodes = hta.frontierNodes.map((node) => ({
         ...node,
         magnitude: Math.min(10, node.magnitude + 1),
       }));
@@ -2689,11 +2689,11 @@ class ForestServer {
     }
 
     // Get completed task IDs for proper prerequisite checking
-    const completedTaskIds = hta.completed_nodes?.map((n) => n.id) || [];
-    const completedTaskTitles = hta.completed_nodes?.map((n) => n.title) || [];
+    const completedTaskIds = hta.completedNodes?.map((n) => n.id) || [];
+    const completedTaskTitles = hta.completedNodes?.map((n) => n.title) || [];
 
     // Find ready nodes with satisfied prerequisites
-    const readyNodes = hta.frontier_nodes.filter((node) => {
+    const readyNodes = hta.frontierNodes.filter((node) => {
       if (node.status !== "ready") return false;
 
       if (node.prerequisites && node.prerequisites.length > 0) {
@@ -2722,13 +2722,13 @@ class ForestServer {
         contextFromMemory,
       );
       const updatedHTA = await this.loadProjectData(projectId, "hta.json");
-      let newReadyNodes = updatedHTA.frontier_nodes.filter(
+      let newReadyNodes = updatedHTA.frontierNodes.filter(
         (n) => n.status === "ready",
       );
 
       if (newReadyNodes.length === 0) {
         const completedTaskIds =
-          updatedHTA.completed_nodes?.map((n) => n.id) || [];
+          updatedHTA.completedNodes?.map((n) => n.id) || [];
         const continuationTasks = await this.generateSmartNextTasks(
           projectConfig,
           learningHistory,
@@ -2736,7 +2736,7 @@ class ForestServer {
         );
 
         if (continuationTasks.length > 0) {
-          updatedHTA.frontier_nodes.push(...continuationTasks);
+          updatedHTA.frontierNodes.push(...continuationTasks);
           await this.saveProjectData(projectId, "hta.json", updatedHTA);
           newReadyNodes = continuationTasks;
         }
@@ -3186,7 +3186,7 @@ class ForestServer {
 
     // Add generated tasks to HTA
     if (newTasks.length > 0) {
-      hta.frontier_nodes.push(...newTasks);
+      hta.frontierNodes.push(...newTasks);
       hta.last_evolution = new Date().toISOString();
       await this.saveProjectData(projectId, "hta.json", hta);
     }
@@ -4653,8 +4653,8 @@ class ForestServer {
       };
     }
 
-    const completedTaskIds = hta.completed_nodes?.map((n) => n.id) || [];
-    const completedTaskTitles = hta.completed_nodes?.map((n) => n.title) || [];
+    const completedTaskIds = hta.completedNodes?.map((n) => n.id) || [];
+    const completedTaskTitles = hta.completedNodes?.map((n) => n.title) || [];
     const learningHistory = (await this.loadPathData(
       projectId,
       activePath,
@@ -4667,13 +4667,13 @@ class ForestServer {
     let debug = `🔍 TASK SEQUENCE DEBUG for "${projectId}"\\n\\n`;
 
     // Show completed tasks
-    debug += `✅ COMPLETED TASKS (${hta.completed_nodes?.length || 0}):\\n`;
-    hta.completed_nodes?.forEach((node, index) => {
+    debug += `✅ COMPLETED TASKS (${hta.completedNodes?.length || 0}):\\n`;
+    hta.completedNodes?.forEach((node, index) => {
       debug += `${index + 1}. ${node.title} (ID: ${node.id})\\n`;
     });
 
-    debug += `\\n🎯 FRONTIER TASKS (${hta.frontier_nodes?.length || 0}):\\n`;
-    hta.frontier_nodes?.forEach((node, index) => {
+    debug += `\\n🎯 FRONTIER TASKS (${hta.frontierNodes?.length || 0}):\\n`;
+    hta.frontierNodes?.forEach((node, index) => {
       // Use same prerequisite checking logic as get_next_task
       const prereqStatus =
         node.prerequisites
@@ -4728,7 +4728,7 @@ class ForestServer {
     // Show what get_next_task would actually return
     debug += `\\n🎯 WHAT GET_NEXT_TASK WOULD RETURN:\\n`;
     const readyTasks =
-      hta.frontier_nodes?.filter((node) => {
+      hta.frontierNodes?.filter((node) => {
         const prereqsMet =
           !node.prerequisites?.length ||
           node.prerequisites.every((prereq) => {
@@ -4804,19 +4804,19 @@ class ForestServer {
       repairActions.push(`✨ Generated ${newFrontierNodes.length} fresh tasks`);
     } else {
       // Smart repair - fix existing issues
-      const completedTaskIds = hta.completed_nodes?.map((n) => n.id) || [];
+      const completedTaskIds = hta.completedNodes?.map((n) => n.id) || [];
       const orphanedTasks = [];
       const validTasks = [];
 
       // Validate each frontier task
-      hta.frontier_nodes.forEach((node) => {
+      hta.frontierNodes.forEach((node) => {
         if (!node.prerequisites || node.prerequisites.length === 0) {
           validTasks.push(node); // No prerequisites to validate
         } else {
           const invalidPrereqs = node.prerequisites.filter(
             (prereq) =>
               !completedTaskIds.includes(prereq) &&
-              !hta.frontier_nodes.some((fn) => fn.id === prereq),
+              !hta.frontierNodes.some((fn) => fn.id === prereq),
           );
 
           if (invalidPrereqs.length > 0) {
@@ -4860,7 +4860,7 @@ class ForestServer {
     }
 
     // Update HTA with repaired frontier
-    hta.frontier_nodes = newFrontierNodes;
+    hta.frontierNodes = newFrontierNodes;
     hta.last_evolution = new Date().toISOString();
     hta.sequence_repairs = (hta.sequence_repairs || 0) + 1;
 
@@ -4990,7 +4990,7 @@ class ForestServer {
     const hta = await this.loadProjectData(projectId, "hta.json");
     if (hta) {
       // Mark path-relevant tasks as priority
-      hta.frontier_nodes.forEach((node) => {
+      hta.frontierNodes.forEach((node) => {
         if (this.isTaskRelevantToPath(node, pathName)) {
           node.path_priority = true;
           node.path_focus = pathName;
@@ -5003,7 +5003,7 @@ class ForestServer {
 
     // Show current path-focused tasks
     const pathTasks =
-      hta?.frontier_nodes?.filter(
+      hta?.frontierNodes?.filter(
         (n) => n.status === "ready" && this.isTaskRelevantToPath(n, pathName),
       ) || [];
 
@@ -5042,7 +5042,7 @@ class ForestServer {
       projectConfig.learning_paths.forEach((path) => {
         const isActive = path.path_name === activePath ? " 🎯 ACTIVE" : "";
         const taskCount =
-          hta?.frontier_nodes?.filter((n) =>
+          hta?.frontierNodes?.filter((n) =>
             this.isTaskRelevantToPath(n, path.path_name),
           ).length || 0;
 
@@ -5059,8 +5059,8 @@ class ForestServer {
 
     // Show auto-discovered paths from task branches
     const discoveredPaths = new Set();
-    if (hta?.frontier_nodes) {
-      hta.frontier_nodes.forEach((node) => {
+    if (hta?.frontierNodes) {
+      hta.frontierNodes.forEach((node) => {
         if (
           node.branch_type &&
           !["fundamentals", "tools", "practical", "research"].includes(
@@ -5077,7 +5077,7 @@ class ForestServer {
       discoveredPaths.forEach((path) => {
         const isActive = path === activePath ? " 🎯 ACTIVE" : "";
         const taskCount =
-          hta?.frontier_nodes?.filter((n) => this.isTaskRelevantToPath(n, path))
+          hta?.frontierNodes?.filter((n) => this.isTaskRelevantToPath(n, path))
             .length || 0;
         pathList.push(`• ${path}${isActive} (${taskCount} tasks)`);
       });

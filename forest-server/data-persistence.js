@@ -303,10 +303,10 @@ export class DataPersistence {
         return {
           tree: null,
           strategicBranches: [],
-          frontier_nodes: [],
-          completed_nodes: [],
+          frontierNodes: [],
+          completedNodes: [],
           collaborative_sessions: [],
-          hierarchy_metadata: {
+          hierarchyMetadata: {
             total_depth: 0,
             total_branches: 0,
             total_sub_branches: 0,
@@ -363,10 +363,10 @@ export class DataPersistence {
     if (!data || typeof data !== 'object') return {
       tree: null,
       strategicBranches: [],
-      frontier_nodes: [],
-      completed_nodes: [],
+      frontierNodes: [],
+      completedNodes: [],
       collaborative_sessions: [],
-      hierarchy_metadata: {
+      hierarchyMetadata: {
         total_depth: 0,
         total_branches: 0,
         total_sub_branches: 0,
@@ -375,12 +375,12 @@ export class DataPersistence {
       },
     };
 
-    data.frontier_nodes = data.frontier_nodes || data.frontierNodes || [];
+    data.frontierNodes = data.frontierNodes || data.frontierNodes || [];
     data.strategicBranches = data.strategicBranches || [];
-    data.completed_nodes = data.completed_nodes || [];
+    data.completedNodes = data.completedNodes || [];
     data.collaborative_sessions = data.collaborative_sessions || [];
-    if (!data.hierarchy_metadata) {
-      data.hierarchy_metadata = {
+    if (!data.hierarchyMetadata) {
+      data.hierarchyMetadata = {
         total_depth: 0,
         total_branches: 0,
         total_sub_branches: 0,
@@ -389,8 +389,8 @@ export class DataPersistence {
       };
     }
     
-    if (data.frontierNodes && !data.frontier_nodes.length) {
-      data.frontier_nodes = data.frontierNodes;
+    if (data.frontierNodes && !data.frontierNodes.length) {
+      data.frontierNodes = data.frontierNodes;
     }
     delete data.frontierNodes;
     

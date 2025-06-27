@@ -218,7 +218,7 @@ export class TaskIntelligence {
         htaData.lastUpdated = new Date().toISOString();
 
         // CRITICAL FIX: Ensure backward compatibility with both property names
-        htaData.frontier_nodes = htaData.frontierNodes;
+        htaData.frontierNodes = htaData.frontierNodes;
 
         // CRITICAL: Ensure the HTA structure is properly initialized
         if (!htaData.metadata) {
@@ -1096,7 +1096,7 @@ export class TaskIntelligence {
       const adaptedHtaData = {
         ...htaData,
         frontierNodes: adaptedTasks,
-        frontier_nodes: adaptedTasks // Ensure both formats
+        frontierNodes: adaptedTasks // Ensure both formats
       };
 
       return {

@@ -38,7 +38,7 @@ export class TaskSelector {
       return null;
     }
     
-    let nodes = htaData.frontier_nodes || htaData.frontierNodes || [];
+    let nodes = htaData.frontierNodes || htaData.frontierNodes || [];
 
     // If nodes appear hierarchical include only actionable leaf nodes
     nodes = flattenToActionTasks(nodes);

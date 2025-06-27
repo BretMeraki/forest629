@@ -278,7 +278,7 @@ export class TaskIntelligence {
         htaData.frontierNodes = htaData.frontierNodes.concat(newTasks);
 
         // CRITICAL FIX: Ensure backward compatibility with both property names
-        htaData.frontier_nodes = htaData.frontierNodes;
+        htaData.frontierNodes = htaData.frontierNodes;
         htaData.lastUpdated = new Date().toISOString();
 
         // CRITICAL: Ensure the HTA structure is properly initialized

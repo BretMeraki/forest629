@@ -178,8 +178,8 @@ export class HTABridge {
 
       // CRITICAL: Provide both field variants for compatibility
       frontierNodes: frontierNodes,      // camelCase for legacy compatibility
-      frontier_nodes: frontierNodes,     // snake_case for new standard
-      hierarchy_metadata: hierarchyMetadata,
+      frontierNodes: frontierNodes,     // snake_case for new standard
+      hierarchyMetadata: hierarchyMetadata,
 
       // Add timestamps
       created: new Date().toISOString(),
@@ -299,8 +299,8 @@ export class HTABridge {
       },
       // CRITICAL: Provide both field variants for compatibility
       frontierNodes: frontierNodes,      // camelCase for legacy compatibility
-      frontier_nodes: frontierNodes,     // snake_case for new standard
-      hierarchy_metadata: hierarchyMetadata,
+      frontierNodes: frontierNodes,     // snake_case for new standard
+      hierarchyMetadata: hierarchyMetadata,
       created: new Date().toISOString(),
       lastUpdated: new Date().toISOString()
     };

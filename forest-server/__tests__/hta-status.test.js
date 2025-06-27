@@ -20,18 +20,18 @@ describe('HtaStatus module - field name and path handling', () => {
     htaStatus = new HtaStatus(mockDataPersistence, mockProjectManagement);
   });
 
-  it('should read frontier_nodes when present (field normalization)', async () => {
+  it('should read frontierNodes when present (field normalization)', async () => {
     mockProjectManagement.requireActiveProject.mockResolvedValue('test-project');
     mockDataPersistence.loadProjectData.mockResolvedValue({ activePath: 'general', goal: 'Test' });
     const sampleHTA = {
       goal: 'Test',
-      frontier_nodes: [{ id: '1', title: 'Task', completed: false }]
+      frontierNodes: [{ id: '1', title: 'Task', completed: false }]
     };
     mockDataPersistence.loadPathData.mockResolvedValue(sampleHTA);
 
     const result = await htaStatus.getHTAStatus();
 
-    expect(result.hta_status.frontier_nodes.length).toBe(1);
+    expect(result.hta_status.frontierNodes.length).toBe(1);
   });
 
   it('should fallback to frontierNodes for backward compatibility', async () => {
@@ -44,6 +44,6 @@ describe('HtaStatus module - field name and path handling', () => {
     mockDataPersistence.loadPathData.mockResolvedValue(sampleHTA);
 
     const result = await htaStatus.getHTAStatus();
-    expect(result.hta_status.frontier_nodes.length).toBe(1);
+    expect(result.hta_status.frontierNodes.length).toBe(1);
   });
 }); 

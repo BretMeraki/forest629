@@ -77,9 +77,9 @@ class MockCleanForestServer {
       if (!htaData) {
         // Create default HTA structure if none exists
         htaData = {
-          frontier_nodes: [],
-          completed_nodes: [],
-          hierarchy_metadata: {
+          frontierNodes: [],
+          completedNodes: [],
+          hierarchyMetadata: {
             total_tasks: 0,
             total_branches: 0,
             created: new Date().toISOString(),
@@ -115,16 +115,16 @@ class MockCleanForestServer {
       }
 
       // Update HTA structure with flattened tasks
-      htaData.frontier_nodes = flattenedTasks;
+      htaData.frontierNodes = flattenedTasks;
       
       // Add compatibility field for schedule generator
       htaData.frontierNodes = flattenedTasks;
       
       // Update metadata
-      htaData.hierarchy_metadata = htaData.hierarchy_metadata || {};
-      htaData.hierarchy_metadata.total_tasks = totalTaskCount;
-      htaData.hierarchy_metadata.total_branches = branchTasks.length;
-      htaData.hierarchy_metadata.last_modified = new Date().toISOString();
+      htaData.hierarchyMetadata = htaData.hierarchyMetadata || {};
+      htaData.hierarchyMetadata.total_tasks = totalTaskCount;
+      htaData.hierarchyMetadata.total_branches = branchTasks.length;
+      htaData.hierarchyMetadata.last_modified = new Date().toISOString();
 
       // Persist updated HTA structure to disk
       await this.savePathHTA(projectId, activePath, htaData);
@@ -141,7 +141,7 @@ class MockCleanForestServer {
         generation_stats: { 
           totalBranches: branchTasks.length,
           totalTasks: totalTaskCount,
-          frontier_nodes_populated: flattenedTasks.length
+          frontierNodes_populated: flattenedTasks.length
         },
         hta_updated: true,
         tasks_stored: totalTaskCount
@@ -223,7 +223,7 @@ class MockCleanForestServer {
       if (prereq.startsWith('node_')) return prereq;
       
       const task = htaData.frontierNodes.find(t => t.title === prereq) ||
-                   htaData.completed_nodes.find(t => t.title === prereq);
+                   htaData.completedNodes.find(t => t.title === prereq);
       
       return task ? task.id : null;
     }).filter(id => id !== null);
@@ -343,7 +343,7 @@ describe('CleanForestServer HTA Methods', () => {
       expect(result.content[0].text).toContain('Task Generation Complete');
       expect(result.generation_stats.totalBranches).toBe(1);
       expect(result.generation_stats.totalTasks).toBe(1);
-      expect(result.generation_stats.frontier_nodes_populated).toBe(1);
+      expect(result.generation_stats.frontierNodes_populated).toBe(1);
       expect(result.tasks_stored).toBe(1);
       expect(mockDataPersistence.saveProjectData).toHaveBeenCalled();
     });
@@ -382,17 +382,17 @@ describe('CleanForestServer HTA Methods', () => {
 
       expect(result.generation_stats.totalBranches).toBe(2);
       expect(result.generation_stats.totalTasks).toBe(3);
-      expect(result.generation_stats.frontier_nodes_populated).toBe(3);
+      expect(result.generation_stats.frontierNodes_populated).toBe(3);
       
       // Verify the saveProjectData was called with flattened structure
       const saveCall = mockDataPersistence.saveProjectData.mock.calls[0];
       const savedHtaData = saveCall[2];
       
-      expect(savedHtaData.frontier_nodes).toHaveLength(3);
+      expect(savedHtaData.frontierNodes).toHaveLength(3);
       expect(savedHtaData.frontierNodes).toHaveLength(3); // Compatibility field
       
       // Verify each task has required fields
-      savedHtaData.frontier_nodes.forEach(task => {
+      savedHtaData.frontierNodes.forEach(task => {
         expect(task).toHaveProperty('id');
         expect(task).toHaveProperty('title');
         expect(task).toHaveProperty('description');
@@ -406,7 +406,7 @@ describe('CleanForestServer HTA Methods', () => {
     });
 
     // Add test case for field name compatibility
-    it('should populate both frontier_nodes and frontierNodes for compatibility', async () => {
+    it('should populate both frontierNodes and frontierNodes for compatibility', async () => {
       mockProjectManagement.requireActiveProject.mockResolvedValue('test-project');
       mockDataPersistence.loadProjectData.mockResolvedValueOnce({
         activePath: 'general'
@@ -429,11 +429,11 @@ describe('CleanForestServer HTA Methods', () => {
       const saveCall = mockDataPersistence.saveProjectData.mock.calls[0];
       const savedHtaData = saveCall[2];
       
-      expect(savedHtaData.frontier_nodes).toHaveLength(1);
       expect(savedHtaData.frontierNodes).toHaveLength(1);
-      expect(savedHtaData.frontier_nodes[0]).toEqual(savedHtaData.frontierNodes[0]);
+      expect(savedHtaData.frontierNodes).toHaveLength(1);
+      expect(savedHtaData.frontierNodes[0]).toEqual(savedHtaData.frontierNodes[0]);
       
-      expect(result.generation_stats.frontier_nodes_populated).toBe(1);
+      expect(result.generation_stats.frontierNodes_populated).toBe(1);
       expect(result.hta_updated).toBe(true);
     });
 

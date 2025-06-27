@@ -27,7 +27,7 @@ async function testHTADebugTools() {
       loadPathHTA: async () => ({
         goal: 'Test goal',
         branches: [{ id: 'test', title: 'Test Branch' }],
-        frontier_nodes: [
+        frontierNodes: [
           { id: 'task1', title: 'Test Task 1', branch: 'test' },
           { id: 'task2', title: 'Test Task 2', branch: 'test' }
         ]

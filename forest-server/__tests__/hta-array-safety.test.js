@@ -8,9 +8,9 @@ describe('HTA Array Safety – _validateHTAStructure', () => {
   test('missing arrays are initialised', () => {
     const corrupted = { tree: null };
     const fixed = dp._validateHTAStructure(corrupted);
-    expect(Array.isArray(fixed.frontier_nodes)).toBe(true);
+    expect(Array.isArray(fixed.frontierNodes)).toBe(true);
     expect(Array.isArray(fixed.strategicBranches)).toBe(true);
-    expect(Array.isArray(fixed.completed_nodes)).toBe(true);
+    expect(Array.isArray(fixed.completedNodes)).toBe(true);
     expect(Array.isArray(fixed.collaborative_sessions)).toBe(true);
   });
 
@@ -18,11 +18,11 @@ describe('HTA Array Safety – _validateHTAStructure', () => {
     const corrupted = {
       frontierNodes: null,
       strategicBranches: null,
-      completed_nodes: null,
+      completedNodes: null,
       collaborative_sessions: null,
     };
     const fixed = dp._validateHTAStructure(corrupted);
-    expect(fixed.frontier_nodes.length).toBe(0);
+    expect(fixed.frontierNodes.length).toBe(0);
     expect(fixed.strategicBranches.length).toBe(0);
   });
 }); 

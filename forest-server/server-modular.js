@@ -166,6 +166,11 @@ class CleanForestServer {
         return true;
       };
 
+      // ENHANCED: Ensure requireActiveProject method availability
+      if (!this._ensureRequireActiveProjectMethod()) {
+        throw new Error('Failed to ensure requireActiveProject method availability');
+      }
+
       // PHASE 1: INITIAL VALIDATION
       if (!this.validateCriticalDependencies()) {
         throw new Error('Critical dependency validation failed during constructor');
@@ -401,6 +406,40 @@ class CleanForestServer {
       topLevelLogger.error(`[FATAL] CleanForestServer failed to construct. Check logs for details.`);
       throw error; // Re-throw the error to prevent a partially initialized server
     }
+  }
+  // ENHANCED: Ensure requireActiveProject method is always available
+  _ensureRequireActiveProjectMethod() {
+    if (!this.projectManagement) {
+      this.logger.error('ProjectManagement instance is null');
+      return false;
+    }
+
+    if (typeof this.projectManagement.requireActiveProject !== 'function') {
+      this.logger.warn('requireActiveProject method missing, attempting to restore');
+      
+      // ENHANCED: Attempt to restore method from prototype
+      const ProjectManagementClass = this.projectManagement.constructor;
+      if (ProjectManagementClass && ProjectManagementClass.prototype.requireActiveProject) {
+        this.projectManagement.requireActiveProject = ProjectManagementClass.prototype.requireActiveProject.bind(this.projectManagement);
+        this.logger.info('✅ requireActiveProject method restored from prototype');
+        return true;
+      }
+      
+      // ENHANCED: Fallback implementation
+      this.projectManagement.requireActiveProject = async () => {
+        this.logger.warn('Using fallback requireActiveProject implementation');
+        const result = await this.projectManagement.getActiveProject();
+        if (result && result.active_project && result.active_project.id) {
+          return result.active_project.id;
+        }
+        throw new Error('No active project available. Use create_project or switch_project first.');
+      };
+      
+      this.logger.info('✅ requireActiveProject fallback method created');
+      return true;
+    }
+    
+    return true;
   }
 
   /** Run full test suite to refresh component health diary */
@@ -2063,27 +2102,27 @@ ${healthText}
           // FIX: Properly bind storeGeneratedTasks method to maintain 'this' context
           const storeResp = await this.storeGeneratedTasks.bind(this)(branchTasksFallback);
           if (!storeResp?.error) {
-            // SECONDARY FIX: Validate that frontier_nodes is actually populated after storage
+            // SECONDARY FIX: Validate that frontierNodes is actually populated after storage
             const projectId = await this.requireActiveProject();
             const activePath = config?.activePath || 'general';
             const updatedHtaData = await this.loadPathHTA(projectId, activePath);
             
-            if (updatedHtaData && updatedHtaData.frontier_nodes && updatedHtaData.frontier_nodes.length > 0) {
-              // Only mark generation fulfilled if frontier_nodes is actually populated
+            if (updatedHtaData && updatedHtaData.frontierNodes && updatedHtaData.frontierNodes.length > 0) {
+              // Only mark generation fulfilled if frontierNodes is actually populated
               htaResult.requires_branch_generation = false;
               
-              this.logger.info('Verified skeleton generation populated frontier_nodes', {
-                frontierNodesCount: updatedHtaData.frontier_nodes.length,
+              this.logger.info('Verified skeleton generation populated frontierNodes', {
+                frontierNodesCount: updatedHtaData.frontierNodes.length,
                 branchCount: branchTasksFallback.length,
                 totalTasks: branchTasksFallback.reduce((sum, branch) => sum + (branch.tasks?.length || 0), 0)
               });
             } else {
-              this.logger.error('Skeleton storage failed - frontier_nodes still empty after storeGeneratedTasks', {
+              this.logger.error('Skeleton storage failed - frontierNodes still empty after storeGeneratedTasks', {
                 htaDataExists: !!updatedHtaData,
-                frontierNodesExists: !!(updatedHtaData?.frontier_nodes),
-                frontierNodesLength: updatedHtaData?.frontier_nodes?.length || 0
+                frontierNodesExists: !!(updatedHtaData?.frontierNodes),
+                frontierNodesLength: updatedHtaData?.frontierNodes?.length || 0
               });
-              await this.dataPersistence.logError('skeleton_validation_failed', new Error('frontier_nodes not populated after task storage'));
+              await this.dataPersistence.logError('skeleton_validation_failed', new Error('frontierNodes not populated after task storage'));
             }
             
             // 🔍 Capture a user-friendly summary of the generated skeleton
@@ -2121,8 +2160,8 @@ ${healthText}
     const ensureFrontierPopulated = async () => {
       const htaCheck = await this.loadPathHTA(projectId, activePath);
       const logWarn = this.logger?.warn ? this.logger.warn.bind(this.logger) : () => {};
-      // FIX: Standardize field naming - use frontier_nodes consistently
-      if (!htaCheck?.frontier_nodes || htaCheck.frontier_nodes.length === 0) {
+      // FIX: Standardize field naming - use frontierNodes consistently
+      if (!htaCheck?.frontierNodes || htaCheck.frontierNodes.length === 0) {
         logWarn('Frontier empty after HTA generation - injecting minimal tasks');
         // FIX: Properly bind generateSkeletonBranches method to maintain 'this' context
         const minimalSkeleton = this.generateSkeletonBranches.bind(this)({});
@@ -2233,7 +2272,7 @@ ${healthText}
 
       // Add new tasks to the HTA tree
       htaData.frontierNodes.push(...newTasks);
-      htaData.hierarchy_metadata.total_tasks = htaData.frontierNodes.length;
+      htaData.hierarchyMetadata.total_tasks = htaData.frontierNodes.length;
       
       // Update strategic branches if needed
       htaData.strategicBranches = this.htaTreeBuilder.deriveStrategicBranches(htaData.frontierNodes);
@@ -2559,9 +2598,9 @@ ${healthText}
 
       // HTA status
       if (htaData) {
-        // FIX: Standardize field naming - use frontier_nodes consistently
-        const frontierNodes = htaData.frontier_nodes || htaData.frontierNodes || [];
-        const completedNodes = htaData.completed_nodes || [];
+        // FIX: Standardize field naming - use frontierNodes consistently
+        const frontierNodes = htaData.frontierNodes || htaData.frontierNodes || [];
+        const completedNodes = htaData.completedNodes || [];
         allTasks = [...frontierNodes, ...completedNodes];
         completedCount = completedNodes.length + frontierNodes.filter(n => n.completed).length;
 
@@ -2651,68 +2690,82 @@ ${healthText}
         this.debugIntegration.startDebugEnvironment();
       }
 
-      // -- NEW STARTUP ORDER --
-      // 1. Register the bare-minimum handlers so the SDK can craft the
-      //    initialize response (tools list).
-      // 2. Connect the MCP transport ASAP (<1 s).
-      // 3. Defer any heavy setup until after the handshake.
+      // ENHANCED: Optimized startup order for sub-60s handshake
+      // 1. Connect transport immediately (< 1s)
+      // 2. Register minimal capabilities for handshake
+      // 3. Defer ALL heavy initialization until after handshake
 
-      // Minimal handler setup (fast)
+      this.logger.debug('🚀 Fast-track MCP transport connection', { module: 'CleanForestServer' });
+      const server = this.core.getServer();
+      const connectStart = Date.now();
+
+      // ENHANCED: Minimal capability registration for immediate handshake
       try {
-        await this.mcpHandlers.setupHandlers();
-        this.toolRouter.setupRouter();
-      } catch (setupErr) {
-        // Even if this fails we still attempt to connect so the error can be sent
-        this.logger.error('Early handler setup failed', { error: setupErr.message });
+        // Register bare minimum capabilities to satisfy handshake
+        server.registerCapabilities({ 
+          tools: {},  // Will be populated after handshake
+          resources: {}, 
+          prompts: {} 
+        });
+        this.logger.debug('✅ Minimal capabilities registered', { elapsed: Date.now() - connectStart });
+      } catch (capErr) {
+        this.logger.warn('Capability registration failed, continuing', { error: capErr.message });
       }
 
-      // --- Transport connect ---
-      this.logger.debug('🌐 Connecting server transport early', { module: 'CleanForestServer' });
-      const server = this.core.getServer();
-
-      // Provide a stub capability map so the MCP SDK can immediately craft
-      // a valid initialize response even before real tools are registered.
-      try {
-        const quickToolDefs = this.mcpHandlers?.getToolDefinitions?.() || [];
-        server.registerCapabilities({ tools: Object.fromEntries(quickToolDefs.map(t => [t.name, t])) });
-      } catch (_) { /* ignore if already registered */ }
-
+      // ENHANCED: Connect transport FIRST, before any heavy setup
       const transport = new StdioServerTransport();
       await server.connect(transport);
-      this.logger.debug('✅ Transport connected – handshake ready', { module: 'CleanForestServer' });
+      const handshakeTime = Date.now() - connectStart;
+      this.logger.info('✅ MCP transport connected - handshake ready', { 
+        module: 'CleanForestServer',
+        handshakeTime: `${handshakeTime}ms`
+      });
 
-      // ------------------------------------------------------------
-      // DEBUGGING HANDSHAKE TIMEOUTS
-      // Watchdog that warns if we are still doing heavy init close
-      // to the client's 60-second deadline.
-      // ------------------------------------------------------------
-      const connectTs = Date.now();
+      // ENHANCED: Handshake timeout monitoring with more granular warnings
+      const warn15s = setTimeout(() => {
+        this.logger.warn('⏱️ 15s: Heavy initialization still running', {
+          module: 'CleanForestServer',
+          elapsedMs: Date.now() - connectStart
+        });
+      }, 15000);
 
       const warn30s = setTimeout(() => {
-        this.logger.warn('⏳ 30 s after connect: deferred setup still running – initialize reply may be delayed', {
+        this.logger.warn('⚠️ 30s: Deferred setup taking longer than expected', {
           module: 'CleanForestServer',
-          elapsedMs: Date.now() - connectTs
+          elapsedMs: Date.now() - connectStart
         });
       }, 30000);
 
-      const err50s = setTimeout(() => {
-        this.logger.error('⚠️ 50 s after connect: deferred setup not finished – initialize timeout likely', {
+      const err45s = setTimeout(() => {
+        this.logger.error('🚨 45s: Critical - handshake timeout imminent', {
           module: 'CleanForestServer',
-          elapsedMs: Date.now() - connectTs
+          elapsedMs: Date.now() - connectStart
         });
-      }, 50000);
+      }, 45000);
 
-      //  Defer the expensive setup to the next event-loop tick so it runs
-      //  after the initialize handshake has been answered.
+      // ENHANCED: Immediate deferral with progress tracking
       setImmediate(async () => {
+        const deferredStart = Date.now();
         try {
-          this.logger.debug('Deferred setupServer() starting', { module: 'CleanForestServer' });
-          await this.setupServer();
-          this.logger.debug('Deferred setupServer() complete', { module: 'CleanForestServer' });
+          this.logger.debug('🔧 Starting deferred heavy initialization', { module: 'CleanForestServer' });
+          
+          // ENHANCED: Break heavy setup into chunks with progress reporting
+          await this._deferredSetupWithProgress();
+          
+          const setupTime = Date.now() - deferredStart;
+          this.logger.info('✅ Deferred setup complete', { 
+            module: 'CleanForestServer',
+            setupTime: `${setupTime}ms`,
+            totalTime: `${Date.now() - connectStart}ms`
+          });
+          
+          // Clear all timeout warnings
+          clearTimeout(warn15s);
           clearTimeout(warn30s);
-          clearTimeout(err50s);
+          clearTimeout(err45s);
+          
         } catch (deferredErr) {
-          this.logger.error('Deferred setupServer() failed', {
+          this.logger.error('❌ Deferred setup failed', {
             module: 'CleanForestServer',
             error: deferredErr.message,
             stack: deferredErr.stack
@@ -2720,22 +2773,22 @@ ${healthText}
         }
       });
 
-      this.logger.debug('Post-server connect', { module: 'CleanForestServer' });
-
       this.logger.debug('Server started successfully', { module: 'CleanForestServer' });
 
       if (isTerminal) {
         this.logger.info('✅ Server running. Press Ctrl+C to exit.');
       }
 
-      // Start the proactive reasoning clock/loop
-      // Removed automatic start to give user more control
-      // await this.startProactiveReasoning();
-
+      // ENHANCED: Start proactive reasoning only after full setup
       if (isInteractive) {
-        // Example: Start proactive reasoning in interactive mode as well
-        this.logger.info('Starting proactive reasoning in interactive mode...');
-        await this.startProactiveReasoning();
+        setImmediate(async () => {
+          try {
+            this.logger.info('Starting proactive reasoning in interactive mode...');
+            await this.startProactiveReasoning();
+          } catch (reasoningErr) {
+            this.logger.error('Proactive reasoning startup failed', { error: reasoningErr.message });
+          }
+        });
       }
 
     } catch (error) {
@@ -2747,6 +2800,35 @@ ${healthText}
       console.error('❌ Error in server.run():', error.message);
       console.error('Stack:', error.stack);
       throw error;
+    }
+  }
+
+  // ENHANCED: Progressive setup with monitoring
+  async _deferredSetupWithProgress() {
+    const steps = [
+      { name: 'MCP Handlers', fn: () => this.mcpHandlers.setupHandlers() },
+      { name: 'Tool Router', fn: () => this.toolRouter.setupRouter() },
+      { name: 'Cross Validation', fn: () => this.performCrossValidation() }
+    ];
+
+    for (const [index, step] of steps.entries()) {
+      const stepStart = Date.now();
+      try {
+        this.logger.debug(`🔧 Step ${index + 1}/${steps.length}: ${step.name}`, { module: 'CleanForestServer' });
+        await step.fn();
+        const stepTime = Date.now() - stepStart;
+        this.logger.debug(`✅ ${step.name} complete`, { 
+          module: 'CleanForestServer',
+          stepTime: `${stepTime}ms`
+        });
+      } catch (stepErr) {
+        this.logger.error(`❌ ${step.name} failed`, {
+          module: 'CleanForestServer',
+          error: stepErr.message,
+          step: index + 1
+        });
+        throw stepErr;
+      }
     }
   }
 
@@ -3020,9 +3102,9 @@ ${healthText}
       if (!htaData) {
         // Create default HTA structure if none exists
         htaData = {
-          frontier_nodes: [],
-          completed_nodes: [],
-          hierarchy_metadata: {
+          frontierNodes: [],
+          completedNodes: [],
+          hierarchyMetadata: {
             total_tasks: 0,
             total_branches: 0,
             created: new Date().toISOString(),
@@ -3058,16 +3140,16 @@ ${healthText}
       }
 
       // Update HTA structure with flattened tasks
-      htaData.frontier_nodes = flattenedTasks;
+      htaData.frontierNodes = flattenedTasks;
       
       // Add compatibility field for schedule generator
       htaData.frontierNodes = flattenedTasks;
       
       // Update metadata
-      htaData.hierarchy_metadata = htaData.hierarchy_metadata || {};
-      htaData.hierarchy_metadata.total_tasks = totalTaskCount;
-      htaData.hierarchy_metadata.total_branches = branchTasks.length;
-      htaData.hierarchy_metadata.last_modified = new Date().toISOString();
+      htaData.hierarchyMetadata = htaData.hierarchyMetadata || {};
+      htaData.hierarchyMetadata.total_tasks = totalTaskCount;
+      htaData.hierarchyMetadata.total_branches = branchTasks.length;
+      htaData.hierarchyMetadata.last_modified = new Date().toISOString();
 
       // Begin transaction for atomic task storage and HTA update
       const transaction = this.dataPersistence.beginTransaction();
@@ -3100,7 +3182,7 @@ ${healthText}
         generation_stats: { 
           totalBranches: branchTasks.length,
           totalTasks: totalTaskCount,
-          frontier_nodes_populated: flattenedTasks.length
+          frontierNodes_populated: flattenedTasks.length
         },
         hta_updated: true,
         tasks_stored: totalTaskCount
@@ -3395,9 +3477,9 @@ ${healthText}
       }
 
       // Validate HTA structure
-      if (!htaData.frontier_nodes && !htaData.frontierNodes) {
+      if (!htaData.frontierNodes && !htaData.frontierNodes) {
         this.logger?.warn?.('HTA data missing frontier nodes, initializing empty array');
-        htaData.frontier_nodes = [];
+        htaData.frontierNodes = [];
       }
 
       if (pathName === 'general') {

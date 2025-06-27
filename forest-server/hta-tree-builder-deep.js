@@ -46,9 +46,9 @@ export class HtaTreeBuilder {
         complexity: complexityAnalysis,
         strategicBranches: [],
         frontierNodes: [],
-        completed_nodes: [],
+        completedNodes: [],
         collaborative_sessions: [],
-        hierarchy_metadata: {
+        hierarchyMetadata: {
           total_depth: complexityAnalysis.recommended_depth,
           total_branches: 0,
           total_sub_branches: 0,

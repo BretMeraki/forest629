@@ -176,13 +176,13 @@ export class HTADebugTools {
       stage.details.htaStructure = {
         hasGoal: !!htaData.goal,
         hasBranches: Array.isArray(htaData.branches) && htaData.branches.length > 0,
-        hasFrontierNodes: Array.isArray(htaData.frontier_nodes) && htaData.frontier_nodes.length > 0,
-        hasMetadata: !!htaData.hierarchy_metadata
+        hasFrontierNodes: Array.isArray(htaData.frontierNodes) && htaData.frontierNodes.length > 0,
+        hasMetadata: !!htaData.hierarchyMetadata
       };
 
       // Validate node structure
-      if (htaData.frontier_nodes) {
-        const nodeValidation = this.validateNodeStructure(htaData.frontier_nodes);
+      if (htaData.frontierNodes) {
+        const nodeValidation = this.validateNodeStructure(htaData.frontierNodes);
         stage.details.nodeValidation = nodeValidation;
       }
 
@@ -215,7 +215,7 @@ export class HTADebugTools {
       stage.details.loadedData = {
         hasGoal: !!htaData.goal,
         branchCount: htaData.branches?.length || 0,
-        nodeCount: htaData.frontier_nodes?.length || 0,
+        nodeCount: htaData.frontierNodes?.length || 0,
         cacheHit: !!this.dataPersistence.cacheManager?.get(`hta_${projectId}_${pathName}`)
       };
 

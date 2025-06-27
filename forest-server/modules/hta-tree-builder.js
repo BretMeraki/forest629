@@ -7,6 +7,8 @@
 import { FILE_NAMES, DEFAULT_PATHS, HTA_LEVELS } from './constants.js';
 import { buildRichContext, formatConstraintsForPrompt } from './context-utils.js';
 import { FEATURE_FLAGS } from './constants.js';
+import { globalCircuitBreaker } from './utils/llm-circuit-breaker.js';
+import { extractDomain } from './task-intelligence.js';
 
 export class HtaTreeBuilder {
   constructor(dataPersistence, projectManagement, claudeInterface) {
@@ -14,6 +16,77 @@ export class HtaTreeBuilder {
     this.projectManagement = projectManagement;
     this.claudeInterface = claudeInterface;
     this.logger = console; // Simple logger fallback
+
+    // ENHANCED: Dependency injection validation – detect missing methods early
+    try {
+      if (!this.projectManagement || typeof this.projectManagement.requireActiveProject !== 'function') {
+        const diagnostic = {
+          hasProjectManagement: !!this.projectManagement,
+          typeofProjectManagement: typeof this.projectManagement,
+          constructorName: this.projectManagement?.constructor?.name,
+          availableMethods: this.projectManagement ? Object.getOwnPropertyNames(this.projectManagement).filter(p => typeof this.projectManagement[p] === 'function') : [],
+          prototypeChain: this.projectManagement ? this._getPrototypeChain(this.projectManagement) : [],
+          timestamp: new Date().toISOString(),
+          // ENHANCED: Track object integrity
+          objectIntegrity: this._checkObjectIntegrity(this.projectManagement),
+          memoryUsage: process.memoryUsage()
+        };
+        this.logger.warn('[HtaTreeBuilder] ⚠️ projectManagement missing requireActiveProject', diagnostic);
+        
+        // ENHANCED: Attempt to recover or provide fallback
+        if (this.projectManagement && typeof this.projectManagement.getActiveProject === 'function') {
+          this.logger.warn('[HtaTreeBuilder] 🔄 Attempting fallback to getActiveProject method');
+        }
+      } else {
+        // ENHANCED: Log successful validation with details
+        this.logger.info('[HtaTreeBuilder] ✅ ProjectManagement validation successful', {
+          constructorName: this.projectManagement.constructor?.name,
+          methodCount: Object.getOwnPropertyNames(this.projectManagement).filter(p => typeof this.projectManagement[p] === 'function').length,
+          hasRequireActiveProject: true
+        });
+      }
+    } catch (diagErr) {
+      // Ensure constructor never throws – just log
+      this.logger.error('[HtaTreeBuilder] Dependency validation failed', { error: diagErr.message });
+    }
+  }
+
+  // ENHANCED: Helper method to get prototype chain
+  _getPrototypeChain(obj) {
+    const chain = [];
+    let current = Object.getPrototypeOf(obj);
+    while (current && current !== Object.prototype && chain.length < 10) {
+      chain.push(current.constructor?.name || 'Unknown');
+      current = Object.getPrototypeOf(current);
+    }
+    return chain;
+  }
+
+  // ENHANCED: Helper method to check object integrity
+  _checkObjectIntegrity(obj) {
+    if (!obj) return { valid: false, reason: 'null_or_undefined' };
+    
+    try {
+      const descriptor = Object.getOwnPropertyDescriptor(obj, 'requireActiveProject');
+      const hasMethod = typeof obj.requireActiveProject === 'function';
+      const isConfigurable = descriptor?.configurable;
+      const isEnumerable = descriptor?.enumerable;
+      
+      return {
+        valid: hasMethod,
+        hasMethod,
+        descriptor: descriptor ? {
+          configurable: isConfigurable,
+          enumerable: isEnumerable,
+          writable: descriptor.writable,
+          value: typeof descriptor.value
+        } : null,
+        objectSealed: Object.isSealed(obj),
+        objectFrozen: Object.isFrozen(obj)
+      };
+    } catch (error) {
+      return { valid: false, reason: 'integrity_check_failed', error: error.message };
+    }
   }
 
   /**
@@ -21,8 +94,8 @@ export class HtaTreeBuilder {
    * After initial generation, use branch evolution instead
    */
   async buildHTATree(pathName, learningStyle = 'mixed', focusAreas = [], goalOverride = null, contextOverride = '') {
-    // Begin transaction to prevent partial state mutations
-    const transaction = this.dataPersistence.beginTransaction();
+    // ENHANCED: Use atomic transaction wrapper for all operations
+    return await this.dataPersistence.executeInTransaction(async (transaction) => {
     
     try {
       // PHASE 1: DEFENSIVE PROGRAMMING - Comprehensive validation before requireActiveProject call
@@ -93,9 +166,14 @@ export class HtaTreeBuilder {
         transaction: transaction.id
       });
 
+      // ENHANCED: Load and validate project configuration with null checks
       const config = await this.dataPersistence.loadProjectData(projectId, FILE_NAMES.CONFIG);
       
-      // Apply overrides when provided to ensure proper domain isolation
+      if (!config || typeof config !== 'object') {
+        throw new Error(`Project configuration not found or invalid for project: ${projectId}`);
+      }
+      
+      // ENHANCED: Apply overrides with validation
       if (goalOverride && typeof goalOverride === 'string') {
         config.goal = goalOverride;
       }
@@ -103,8 +181,22 @@ export class HtaTreeBuilder {
         config.context = contextOverride;
       }
 
-      if (!config.goal) {
-        throw new Error('Project must have a goal defined to build HTA tree');
+      // ENHANCED: Validate required project context
+      if (!config.goal || typeof config.goal !== 'string' || config.goal.trim().length === 0) {
+        throw new Error('Project must have a valid goal defined to build HTA tree');
+      }
+      
+      // ENHANCED: Ensure context is defined
+      config.context = config.context || '';
+      
+      // ENHANCED: Validate project structure preferences
+      if (!config.life_structure_preferences || typeof config.life_structure_preferences !== 'object') {
+        config.life_structure_preferences = {
+          focus_duration: '25 minutes',
+          wake_time: '07:00',
+          sleep_time: '23:00'
+        };
+        this.logger.warn('[HtaTreeBuilder] Missing life_structure_preferences, using defaults');
       }
 
       // CRITICAL: Check if HTA tree already exists - only generate ONCE per project
@@ -126,11 +218,41 @@ export class HtaTreeBuilder {
         };
       }
 
-      // Analyze goal complexity to determine tree depth
-      const complexityAnalysis = this.analyzeGoalComplexity(config.goal, config.context);
+      // ENHANCED: Analyze goal complexity with null checks
+      let complexityAnalysis;
+      try {
+        complexityAnalysis = this.analyzeGoalComplexity(config.goal, config.context);
+        if (!complexityAnalysis || typeof complexityAnalysis !== 'object') {
+          throw new Error('Invalid complexity analysis result');
+        }
+      } catch (complexityError) {
+        this.logger.error('[HtaTreeBuilder] Complexity analysis failed, using defaults', {
+          error: complexityError.message
+        });
+        complexityAnalysis = {
+          score: 5,
+          level: 'moderate',
+          recommended_depth: 3,
+          main_branches: 5,
+          sub_branches_per_main: 3,
+          tasks_per_leaf: 8,
+          estimated_tasks: 40,
+          time_estimate: '30 hours'
+        };
+      }
       
-      // Build rich context for later quality checks / prompt enrichment
-      const projectContext = buildRichContext(config);
+      // ENHANCED: Build rich context with error handling
+      let projectContext = {};
+      try {
+        if (typeof buildRichContext === 'function') {
+          projectContext = buildRichContext(config) || {};
+        }
+      } catch (contextError) {
+        this.logger.warn('[HtaTreeBuilder] Failed to build rich context', {
+          error: contextError.message
+        });
+        projectContext = { travellerConstraints: [] };
+      }
       
       // Generate the collaborative prompt for deep branch creation
       const branchPrompt = this.generateDeepBranchPrompt(config, learningStyle, focusAreas, complexityAnalysis);
@@ -146,10 +268,10 @@ export class HtaTreeBuilder {
         context: config.context || '',
         complexity: complexityAnalysis,
         strategicBranches: [],
-        frontier_nodes: [],
-        completed_nodes: [],
+        frontierNodes: [],
+        completedNodes: [],
         collaborative_sessions: [],
-        hierarchy_metadata: {
+        hierarchyMetadata: {
           total_depth: complexityAnalysis.recommended_depth,
           total_branches: 0,
           total_sub_branches: 0,
@@ -165,9 +287,14 @@ export class HtaTreeBuilder {
         }
       };
 
-      // If we have a Claude interface, try to generate tasks automatically
-      if (this.claudeInterface) {
+      // ENHANCED: Claude interface with comprehensive null checks
+      if (this.claudeInterface && typeof this.claudeInterface.requestIntelligence === 'function') {
         try {
+          // ENHANCED: Validate prompt before sending to Claude
+          if (!branchPrompt || typeof branchPrompt !== 'string' || branchPrompt.trim().length === 0) {
+            throw new Error('Invalid branch prompt for Claude generation');
+          }
+          
           // Request task generation from Claude
           const claudeResponse = await this.claudeInterface.requestIntelligence('task_generation', {
             prompt: branchPrompt
@@ -211,12 +338,12 @@ export class HtaTreeBuilder {
           }
           
           if (generatedTasks && generatedTasks.length > 0 && !reject) {
-            // Transform generated tasks into frontier_nodes format
+            // Transform generated tasks into frontierNodes format
             const frontierNodes = this.transformTasksToFrontierNodes(generatedTasks);
             
             // Update HTA data with populated tasks
-            htaData.frontier_nodes = frontierNodes;
-            htaData.hierarchy_metadata.total_tasks = frontierNodes.length;
+            htaData.frontierNodes = frontierNodes;
+            htaData.hierarchyMetadata.total_tasks = frontierNodes.length;
             htaData.generation_context.awaiting_generation = false;
             htaData.strategicBranches = this.deriveStrategicBranches(frontierNodes);
             
@@ -224,7 +351,7 @@ export class HtaTreeBuilder {
             transaction.operations.push({
               type: 'validate',
               data: htaData,
-              validator: (data) => data.frontier_nodes && data.frontier_nodes.length > 0,
+              validator: (data) => data.frontierNodes && data.frontierNodes.length > 0,
               reason: 'HTA data must have frontier nodes'
             });
             
@@ -241,8 +368,7 @@ export class HtaTreeBuilder {
               }
             }
 
-            // Commit transaction
-            await this.dataPersistence.commitTransaction(transaction);
+            // Transaction will be committed automatically by wrapper
 
             return {
               success: true,
@@ -264,8 +390,8 @@ export class HtaTreeBuilder {
 
       // Fallback: Generate simple skeleton tasks if Claude isn't available or fails
       const skeletonTasks = this.generateSkeletonTasks(complexityAnalysis, config, focusAreas, learningStyle);
-      htaData.frontier_nodes = skeletonTasks;
-      htaData.hierarchy_metadata.total_tasks = skeletonTasks.length;
+      htaData.frontierNodes = skeletonTasks;
+      htaData.hierarchyMetadata.total_tasks = skeletonTasks.length;
       htaData.generation_context.awaiting_generation = false;
       htaData.strategicBranches = this.deriveStrategicBranches(skeletonTasks);
 
@@ -273,7 +399,7 @@ export class HtaTreeBuilder {
       transaction.operations.push({
         type: 'validate',
         data: htaData,
-        validator: (data) => data.frontier_nodes && data.frontier_nodes.length > 0,
+        validator: (data) => data.frontierNodes && data.frontierNodes.length > 0,
         reason: 'HTA data must have frontier nodes'
       });
 
@@ -290,8 +416,7 @@ export class HtaTreeBuilder {
         }
       }
 
-      // Commit transaction
-      await this.dataPersistence.commitTransaction(transaction);
+      // Transaction will be committed automatically by wrapper
 
       return {
         success: true,
@@ -304,19 +429,7 @@ export class HtaTreeBuilder {
         requires_branch_generation: false,
         tasks_generated: skeletonTasks.length
       };
-    } catch (error) {
-      // Rollback transaction on any error
-      await this.dataPersistence.rollbackTransaction(transaction);
-      
-      return {
-        success: false,
-        content: [{
-          type: 'text',
-          text: `Error building HTA tree: ${error.message}`
-        }],
-        error: error.message
-      };
-    }
+    }, 'buildHTATree'); // End of executeInTransaction wrapper
   }
 
   /**
@@ -483,37 +596,197 @@ ${travellerConstraintBlock}`;
    */
   async loadPathHTA(projectId, pathName) {
     try {
+      let htaData = null;
+      
       if (pathName === DEFAULT_PATHS.GENERAL) {
         // Try path-specific first, then project-level
         const pathHTA = await this.dataPersistence.loadPathData(projectId, pathName, FILE_NAMES.HTA);
-        if (pathHTA) return pathHTA;
+        if (pathHTA) htaData = pathHTA;
         
-        const projectHTA = await this.dataPersistence.loadProjectData(projectId, FILE_NAMES.HTA);
-        if (projectHTA) return projectHTA;
+        if (!htaData) {
+          const projectHTA = await this.dataPersistence.loadProjectData(projectId, FILE_NAMES.HTA);
+          if (projectHTA) htaData = projectHTA;
+        }
       } else {
         const hta = await this.dataPersistence.loadPathData(projectId, pathName, FILE_NAMES.HTA);
-        if (hta) return hta;
+        if (hta) htaData = hta;
       }
       
       // Return null if no HTA exists
-      return null;
+      if (!htaData) return null;
+      
+      // ENHANCED: Apply data normalization and validation
+      return this._normalizeAndValidateHTAData(htaData);
+      
     } catch (error) {
       if (error.code === 'ENOENT') {
         return null;
       }
+      this.logger.error('[HtaTreeBuilder] Error loading HTA data', {
+        projectId,
+        pathName,
+        error: error.message
+      });
       throw error;
     }
+  }
+
+  /**
+   * ENHANCED: Normalize HTA data structure and validate consistency
+   * Ensures frontierNodes is the only convention (camelCase)
+   */
+  _normalizeAndValidateHTAData(htaData) {
+    if (!htaData || typeof htaData !== 'object') {
+      this.logger.warn('[HtaTreeBuilder] Invalid HTA data structure', { htaData });
+      return null;
+    }
+
+    // ENHANCED: Data normalization - ensure frontierNodes is camelCase only
+    const normalized = { ...htaData };
+    
+    // Migrate snake_case to camelCase
+    if (normalized.frontier_nodes && !normalized.frontierNodes) {
+      normalized.frontierNodes = normalized.frontier_nodes;
+      delete normalized.frontier_nodes;
+      this.logger.info('[HtaTreeBuilder] Migrated frontier_nodes to frontierNodes');
+    }
+    
+    // Remove any remaining snake_case variants
+    delete normalized.frontier_nodes;
+    
+    // ENHANCED: Ensure frontierNodes is always an array
+    if (!Array.isArray(normalized.frontierNodes)) {
+      normalized.frontierNodes = [];
+      this.logger.warn('[HtaTreeBuilder] frontierNodes was not an array, initialized as empty array');
+    }
+    
+    // ENHANCED: Validate data structure
+    const validation = this._validateHTAStructure(normalized);
+    if (!validation.isValid) {
+      this.logger.error('[HtaTreeBuilder] HTA data validation failed', {
+        errors: validation.errors,
+        warnings: validation.warnings
+      });
+      // Return normalized data even if validation fails, but log the issues
+    }
+    
+    return normalized;
+  }
+
+  /**
+   * ENHANCED: Validate HTA data structure
+   */
+  _validateHTAStructure(htaData) {
+    const errors = [];
+    const warnings = [];
+    
+    // Required fields validation
+    if (!htaData.projectId) errors.push('Missing projectId');
+    if (!htaData.pathName) errors.push('Missing pathName');
+    if (!htaData.goal) warnings.push('Missing goal');
+    
+    // frontierNodes validation
+    if (!Array.isArray(htaData.frontierNodes)) {
+      errors.push('frontierNodes must be an array');
+    } else {
+      htaData.frontierNodes.forEach((node, index) => {
+        if (!node.id) errors.push(`Node ${index} missing id`);
+        if (!node.title) warnings.push(`Node ${index} missing title`);
+        if (typeof node.completed !== 'boolean') {
+          warnings.push(`Node ${index} completed field should be boolean`);
+        }
+      });
+    }
+    
+    // Check for legacy snake_case fields
+    if (htaData.frontier_nodes) {
+      warnings.push('Legacy frontier_nodes field detected - should be migrated to frontierNodes');
+    }
+    
+    return {
+      isValid: errors.length === 0,
+      errors,
+      warnings
+    };
   }
 
   /**
    * Save HTA for a path
    */
   async savePathHTA(projectId, pathName, htaData) {
-    if (pathName === DEFAULT_PATHS.GENERAL) {
-      await this.dataPersistence.saveProjectData(projectId, FILE_NAMES.HTA, htaData);
-    } else {
-      await this.dataPersistence.savePathData(projectId, pathName, FILE_NAMES.HTA, htaData);
+    try {
+      // ENHANCED: Normalize data before saving
+      const normalizedData = this._normalizeHTADataForSave(htaData);
+      
+      // ENHANCED: Validate before save
+      const validation = this._validateHTAStructure(normalizedData);
+      if (!validation.isValid) {
+        this.logger.error('[HtaTreeBuilder] Cannot save invalid HTA data', {
+          errors: validation.errors,
+          projectId,
+          pathName
+        });
+        throw new Error(`HTA data validation failed: ${validation.errors.join(', ')}`);
+      }
+      
+      if (pathName === DEFAULT_PATHS.GENERAL) {
+        await this.dataPersistence.saveProjectData(projectId, FILE_NAMES.HTA, normalizedData);
+      } else {
+        await this.dataPersistence.savePathData(projectId, pathName, FILE_NAMES.HTA, normalizedData);
+      }
+      
+      this.logger.debug('[HtaTreeBuilder] HTA data saved successfully', {
+        projectId,
+        pathName,
+        frontierNodesCount: normalizedData.frontierNodes?.length || 0
+      });
+      
+    } catch (error) {
+      this.logger.error('[HtaTreeBuilder] Error saving HTA data', {
+        projectId,
+        pathName,
+        error: error.message
+      });
+      throw error;
     }
+  }
+
+  /**
+   * ENHANCED: Normalize HTA data for saving - ensure camelCase consistency
+   */
+  _normalizeHTADataForSave(htaData) {
+    if (!htaData || typeof htaData !== 'object') {
+      throw new Error('Invalid HTA data: must be an object');
+    }
+
+    const normalized = { ...htaData };
+    
+    // ENHANCED: Ensure frontierNodes is camelCase only
+    if (normalized.frontier_nodes && !normalized.frontierNodes) {
+      normalized.frontierNodes = normalized.frontier_nodes;
+    }
+    
+    // Remove any snake_case variants
+    delete normalized.frontier_nodes;
+    
+    // ENHANCED: Ensure frontierNodes is always an array
+    if (!Array.isArray(normalized.frontierNodes)) {
+      normalized.frontierNodes = [];
+    }
+    
+    // ENHANCED: Normalize node structure
+    normalized.frontierNodes = normalized.frontierNodes.map(node => ({
+      ...node,
+      completed: Boolean(node.completed), // Ensure boolean
+      id: String(node.id || ''), // Ensure string
+      title: String(node.title || ''), // Ensure string
+    }));
+    
+    // ENHANCED: Add metadata
+    normalized.lastUpdated = new Date().toISOString();
+    normalized.dataVersion = '2.0'; // Track data format version
+    
+    return normalized;
   }
 
   /**
@@ -565,7 +838,7 @@ ${travellerConstraintBlock}`;
   }
 
   /**
-   * Transform Claude-generated task objects to frontier_nodes format.
+   * Transform Claude-generated task objects to frontierNodes format.
    * @param {any[]} tasks
    * @returns {any[]}
    */

@@ -24,6 +24,24 @@ export class DataPersistence {
     return FileSystem.join(this.dataDir, DIRECTORIES.PROJECTS, projectId, DIRECTORIES.PATHS, pathName);
   }
 
+  // Migration helper to convert legacy snake_case keys to camelCase
+  migrateSnakeToCamel(data) {
+    const map = {
+      frontier_nodes: 'frontierNodes',
+      completed_nodes: 'completedNodes',
+      hierarchy_metadata: 'hierarchyMetadata',
+      learning_style: 'learningStyle',
+      focus_areas: 'focusAreas',
+    };
+    Object.keys(map).forEach(snake => {
+      if (data[snake] !== undefined) {
+        data[map[snake]] = data[snake];
+        delete data[snake];
+      }
+    });
+    return data;
+  }
+
   async loadProjectData(projectId, filename) {
     const cacheKey = this.cacheManager.getCacheKey(projectId, filename);
 
@@ -42,7 +60,12 @@ export class DataPersistence {
     }
 
     try {
-      const parsed = await FileSystem.readJSON(filePath);
+      let parsed = await FileSystem.readJSON(filePath);
+
+      // Auto-migrate old HTA format from snake_case to camelCase
+      if (filename === 'hta.json' && parsed && typeof parsed === 'object') {
+        parsed = this.migrateSnakeToCamel(parsed);
+      }
 
       // Cache the result
       this.cacheManager.setCache(cacheKey, parsed);
@@ -59,43 +82,70 @@ export class DataPersistence {
   }
 
   async saveProjectData(projectId, fileName, data, transaction = null) {
-    const filePath = FileSystem.join(this.getProjectDir(projectId), fileName);
-    
-    if (transaction) {
-      logger.debug('[DataPersistence] Staging project file', { filePath, transactionId: transaction.id });
-      // Transaction mode: use temporary files and backup
-      const tempPath = `${filePath}.tmp`;
-      
-      // Backup existing data if file exists
-      if (await this.fileExists(filePath)) {
-        const existingData = await this.loadProjectData(projectId, fileName);
-        transaction.backups.set(filePath, existingData);
-      } else {
-        transaction.backups.set(filePath, null);
+    try {
+      // ENHANCED: Validate inputs with null checks
+      if (!projectId || typeof projectId !== 'string') {
+        throw new Error('Invalid projectId: must be a non-empty string');
       }
-      
-      // Write to temporary file
-      await this.ensureDirectoryExists(FileSystem.dirname(tempPath));
-      await FileSystem.writeFile(tempPath, JSON.stringify(data, null, 2));
-      transaction.tempFiles.add(tempPath);
-      
-      // Add validation operation
-      transaction.operations.push({
-        type: 'validate',
-        data: data,
-        filePath: filePath,
-        validator: (data) => data && typeof data === 'object',
-        reason: 'Data must be a valid object'
-      });
-    } else {
-      logger.debug('[DataPersistence] Writing project file (no transaction)', { filePath });
-      // Normal mode: direct write
-      await this.ensureDirectoryExists(FileSystem.dirname(filePath));
-      await FileSystem.writeFile(filePath, JSON.stringify(data, null, 2));
-    }
+      if (!fileName || typeof fileName !== 'string') {
+        throw new Error('Invalid fileName: must be a non-empty string');
+      }
+      if (data === null || data === undefined) {
+        throw new Error('Invalid data: cannot be null or undefined');
+      }
 
-    // Invalidate cache
-    this.invalidateProjectCache(projectId);
+      const projectDir = this.getProjectDir(projectId);
+      await this.ensureDirectoryExists(projectDir);
+      const filePath = path.join(projectDir, fileName);
+
+      // ENHANCED: Transaction support with atomic operations
+      if (transaction) {
+        // Create backup before modification
+        if (await this.fileExists(filePath)) {
+          const backupPath = `${filePath}.backup_${transaction.id}`;
+          await this.copyFile(filePath, backupPath);
+          transaction.backups.set(filePath, backupPath);
+          transaction.tempFiles.add(backupPath);
+        }
+        
+        // Add operation to transaction log
+        transaction.operations.push({
+          type: 'save_project_data',
+          projectId,
+          fileName,
+          filePath,
+          timestamp: new Date().toISOString()
+        });
+      }
+
+      // ENHANCED: Normalize data before saving
+      let normalizedData = data;
+      if (fileName === 'hta.json' && data && typeof data === 'object') {
+        normalizedData = this._normalizeHTAData(data);
+      }
+
+      // ENHANCED: Atomic write with validation
+      await this._atomicWriteJSON(filePath, normalizedData);
+      
+      // Invalidate cache
+      this.invalidateProjectCache(projectId);
+      
+      logger.debug('[DataPersistence] Project data saved', {
+        projectId,
+        fileName,
+        hasTransaction: !!transaction,
+        dataSize: JSON.stringify(normalizedData).length
+      });
+
+    } catch (error) {
+      logger.error('[DataPersistence] Error saving project data', {
+        projectId,
+        fileName,
+        error: error.message,
+        hasTransaction: !!transaction
+      });
+      throw error;
+    }
   }
 
   async loadPathData(projectId, pathName, filename) {
@@ -115,7 +165,12 @@ export class DataPersistence {
     }
 
     try {
-      const parsed = await FileSystem.readJSON(filePath);
+      let parsed = await FileSystem.readJSON(filePath);
+
+      // Auto-migrate old HTA format keys if needed
+      if (filename === 'hta.json' && parsed && typeof parsed === 'object') {
+        parsed = this.migrateSnakeToCamel(parsed);
+      }
 
       // Cache the result
       this.cacheManager.setCache(cacheKey, parsed);
@@ -131,43 +186,128 @@ export class DataPersistence {
   }
 
   async savePathData(projectId, pathName, fileName, data, transaction = null) {
-    const filePath = FileSystem.join(this.getPathDir(projectId, pathName), fileName);
-    
-    if (transaction) {
-      logger.debug('[DataPersistence] Staging path file', { filePath, transactionId: transaction.id });
-      // Transaction mode: use temporary files and backup
-      const tempPath = `${filePath}.tmp`;
-      
-      // Backup existing data if file exists
-      if (await this.fileExists(filePath)) {
-        const existingData = await this.loadPathData(projectId, pathName, fileName);
-        transaction.backups.set(filePath, existingData);
-      } else {
-        transaction.backups.set(filePath, null);
+    try {
+      // ENHANCED: Validate inputs with null checks
+      if (!projectId || typeof projectId !== 'string') {
+        throw new Error('Invalid projectId: must be a non-empty string');
       }
+      if (!pathName || typeof pathName !== 'string') {
+        throw new Error('Invalid pathName: must be a non-empty string');
+      }
+      if (!fileName || typeof fileName !== 'string') {
+        throw new Error('Invalid fileName: must be a non-empty string');
+      }
+      if (data === null || data === undefined) {
+        throw new Error('Invalid data: cannot be null or undefined');
+      }
+
+      const pathDir = this.getPathDir(projectId, pathName);
+      await this.ensureDirectoryExists(pathDir);
+      const filePath = path.join(pathDir, fileName);
+
+      // ENHANCED: Transaction support with atomic operations
+      if (transaction) {
+        // Create backup before modification
+        if (await this.fileExists(filePath)) {
+          const backupPath = `${filePath}.backup_${transaction.id}`;
+          await this.copyFile(filePath, backupPath);
+          transaction.backups.set(filePath, backupPath);
+          transaction.tempFiles.add(backupPath);
+        }
+        
+        // Add operation to transaction log
+        transaction.operations.push({
+          type: 'save_path_data',
+          projectId,
+          pathName,
+          fileName,
+          filePath,
+          timestamp: new Date().toISOString()
+        });
+      }
+
+      // ENHANCED: Normalize data before saving
+      let normalizedData = data;
+      if (fileName === 'hta.json' && data && typeof data === 'object') {
+        normalizedData = this._normalizeHTAData(data);
+      }
+
+      // ENHANCED: Atomic write with validation
+      await this._atomicWriteJSON(filePath, normalizedData);
       
-      // Write to temporary file
-      await this.ensureDirectoryExists(FileSystem.dirname(tempPath));
-      await FileSystem.writeFile(tempPath, JSON.stringify(data, null, 2));
-      transaction.tempFiles.add(tempPath);
+      // Invalidate cache
+      this.invalidateProjectCache(projectId);
       
-      // Add validation operation
-      transaction.operations.push({
-        type: 'validate',
-        data: data,
-        filePath: filePath,
-        validator: (data) => data && typeof data === 'object',
-        reason: 'Data must be a valid object'
+      logger.debug('[DataPersistence] Path data saved', {
+        projectId,
+        pathName,
+        fileName,
+        hasTransaction: !!transaction,
+        dataSize: JSON.stringify(normalizedData).length
       });
-    } else {
-      logger.debug('[DataPersistence] Writing path file (no transaction)', { filePath });
-      // Normal mode: direct write
-      await this.ensureDirectoryExists(FileSystem.dirname(filePath));
-      await FileSystem.writeFile(filePath, JSON.stringify(data, null, 2));
+
+    } catch (error) {
+      logger.error('[DataPersistence] Error saving path data', {
+        projectId,
+        pathName,
+        fileName,
+        error: error.message,
+        hasTransaction: !!transaction
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * ENHANCED: Normalize HTA data to ensure consistency
+   */
+  _normalizeHTAData(data) {
+    if (!data || typeof data !== 'object') {
+      return data;
     }
 
-    // Invalidate cache
-    this.invalidateProjectCache(projectId);
+    const normalized = { ...data };
+    
+    // ENHANCED: Ensure frontierNodes is camelCase only
+    if (normalized.frontier_nodes && !normalized.frontierNodes) {
+      normalized.frontierNodes = normalized.frontier_nodes;
+      delete normalized.frontier_nodes;
+      logger.info('[DataPersistence] Migrated frontier_nodes to frontierNodes during save');
+    }
+    
+    // Remove any remaining snake_case variants
+    delete normalized.frontier_nodes;
+    
+    // ENHANCED: Ensure frontierNodes is always an array
+    if (!Array.isArray(normalized.frontierNodes)) {
+      normalized.frontierNodes = [];
+    }
+    
+    // ENHANCED: Validate and normalize node structure
+    normalized.frontierNodes = normalized.frontierNodes.map((node, index) => {
+      if (!node || typeof node !== 'object') {
+        logger.warn('[DataPersistence] Invalid node structure', { index, node });
+        return {
+          id: `invalid_node_${index}`,
+          title: 'Invalid Node',
+          completed: false
+        };
+      }
+      
+      return {
+        ...node,
+        id: String(node.id || `node_${index}`),
+        title: String(node.title || 'Untitled Task'),
+        completed: Boolean(node.completed),
+        // Preserve other fields
+      };
+    });
+    
+    // ENHANCED: Add metadata
+    normalized.lastUpdated = new Date().toISOString();
+    normalized.dataVersion = '2.0';
+    
+    return normalized;
   }
 
   async loadGlobalData(filename) {
@@ -362,36 +502,154 @@ export class DataPersistence {
    * @param {Object} transaction - Transaction context
    */
   async rollbackTransaction(transaction) {
+    if (!transaction || !transaction.id) {
+      logger.warn('[TRANSACTION] Invalid transaction for rollback');
+      return;
+    }
+
+    logger.info('[TRANSACTION] Rolling back', { 
+      id: transaction.id,
+      operations: transaction.operations.length,
+      backups: transaction.backups.size
+    });
+
+    const errors = [];
+
     try {
-      // Restore all backed-up data
-      for (const [filePath, backupData] of transaction.backups) {
-        if (backupData === null) {
-          // File didn't exist before, remove it
-          if (await this.fileExists(filePath)) {
-            await this.deleteFile(filePath);
+      // ENHANCED: Restore all backed up files
+      for (const [originalPath, backupPath] of transaction.backups) {
+        try {
+          if (await this.fileExists(backupPath)) {
+            await this.copyFile(backupPath, originalPath);
+            logger.debug('[TRANSACTION] Restored file', { originalPath, backupPath });
           }
-        } else {
-          // Restore previous content
-          await FileSystem.writeFile(filePath, JSON.stringify(backupData, null, 2));
+        } catch (restoreError) {
+          errors.push(`Failed to restore ${originalPath}: ${restoreError.message}`);
+          logger.error('[TRANSACTION] Restore failed', {
+            originalPath,
+            backupPath,
+            error: restoreError.message
+          });
         }
       }
 
-      // Remove temporary files
+      // ENHANCED: Clean up temporary files
       for (const tempFile of transaction.tempFiles) {
-        if (await this.fileExists(tempFile)) {
-          await this.deleteFile(tempFile);
+        try {
+          if (await this.fileExists(tempFile)) {
+            await this.deleteFile(tempFile);
+            logger.debug('[TRANSACTION] Cleaned up temp file', { tempFile });
+          }
+        } catch (cleanupError) {
+          errors.push(`Failed to cleanup ${tempFile}: ${cleanupError.message}`);
+          logger.error('[TRANSACTION] Cleanup failed', {
+            tempFile,
+            error: cleanupError.message
+          });
         }
       }
 
-      // Clear transaction data
-      transaction.backups.clear();
-      transaction.operations.length = 0;
-      transaction.tempFiles.clear();
+      // ENHANCED: Clear any caches that might be affected
+      this.clearCache();
 
-      logger.info('[TRANSACTION] Rollback', { id: transaction.id, durationMs: Date.now() - transaction.startTime });
+      const duration = Date.now() - transaction.startTime;
+      logger.info('[TRANSACTION] Rollback complete', {
+        id: transaction.id,
+        duration: `${duration}ms`,
+        errors: errors.length
+      });
+
+      if (errors.length > 0) {
+        logger.error('[TRANSACTION] Rollback completed with errors', {
+          id: transaction.id,
+          errors
+        });
+      }
+
+    } catch (rollbackError) {
+      logger.error('[TRANSACTION] Critical rollback failure', {
+        id: transaction.id,
+        error: rollbackError.message,
+        stack: rollbackError.stack
+      });
+      throw new Error(`Transaction rollback failed: ${rollbackError.message}`);
+    }
+  }
+
+  /**
+   * ENHANCED: Execute multiple operations atomically within a transaction
+   * @param {Function} operations - Async function that performs operations
+   * @param {string} operationName - Name for logging
+   * @returns {Promise<any>} Result of operations
+   */
+  async executeInTransaction(operations, operationName = 'unknown') {
+    const transaction = this.beginTransaction();
+    
+    try {
+      logger.debug('[TRANSACTION] Starting atomic operation', {
+        id: transaction.id,
+        operation: operationName
+      });
+      
+      const result = await operations(transaction);
+      
+      await this.commitTransaction(transaction);
+      
+      logger.info('[TRANSACTION] Atomic operation completed', {
+        id: transaction.id,
+        operation: operationName,
+        duration: `${Date.now() - transaction.startTime}ms`
+      });
+      
+      return result;
+      
     } catch (error) {
-      console.error(`[TRANSACTION] Failed to rollback transaction ${transaction.id}:`, error.message);
+      logger.error('[TRANSACTION] Atomic operation failed, rolling back', {
+        id: transaction.id,
+        operation: operationName,
+        error: error.message
+      });
+      
+      await this.rollbackTransaction(transaction);
       throw error;
+    }
+  }
+
+  /**
+   * ENHANCED: Atomic write operation with proper error handling
+   */
+  async _atomicWriteJSON(filePath, data) {
+    if (!filePath || typeof filePath !== 'string') {
+      throw new Error('Invalid file path for atomic write');
+    }
+    
+    if (data === null || data === undefined) {
+      throw new Error('Cannot write null or undefined data');
+    }
+
+    const tempPath = `${filePath}.tmp_${Date.now()}`;
+    
+    try {
+      // Write to temporary file first
+      await fs.writeFile(tempPath, JSON.stringify(data, null, 2), 'utf8');
+      
+      // Atomic move to final location
+      await fs.rename(tempPath, filePath);
+      
+    } catch (error) {
+      // Clean up temp file if it exists
+      try {
+        if (await this.fileExists(tempPath)) {
+          await this.deleteFile(tempPath);
+        }
+      } catch (cleanupError) {
+        logger.warn('[DataPersistence] Failed to cleanup temp file', {
+          tempPath,
+          error: cleanupError.message
+        });
+      }
+      
+      throw new Error(`Atomic write failed: ${error.message}`);
     }
   }
 
