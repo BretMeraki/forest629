@@ -23,26 +23,25 @@
       }
     },
     "forest": {
-      "command": "C:\\Users\\schlansk\\local-node\\node-v20.14.0-win-x64\\node.exe",
+      "command": "C:\\Users\\schlansk\\node-v22.16.0-win-x64\\node.exe",
       "args": [
-        "C:\\Users\\schlansk\\claude-mcp-configs\\start-server.js"
+        "server-modular.js"
       ],
+      "cwd": "C:\\Users\\schlansk\\claude-mcp-configs\\forest-server",
       "env": {
         "FOREST_DATA_DIR": "C:\\Users\\schlansk\\.forest-data"
       }
     },
     "sequential-thinking": {
-      "command": "C:\\Users\\schlansk\\local-node\\node-v20.14.0-win-x64\\node.exe",
-      "args": [
-        "C:\\Users\\schlansk\\claude-mcp-configs\\forest-server\\servers\\sequential-thinking-server.js"
-      ],
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@modelcontextprotocol/server-sequential-thinking"],
       "env": {
         "FOREST_DATA_DIR": "C:\\Users\\schlansk\\.forest-data"
       }
     },
     "context7": {
       "command": "cmd",
-      "args": ["/c", "npx", "-y", "@upstash/context7-mcp@latest"],
+      "args": ["/c", "npx", "-y", "@upstash/context7-mcp@1.0.14"],
       "disabled": false,
       "autoApprove": []
     }

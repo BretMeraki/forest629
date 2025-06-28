@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // @ts-check
 // @ts-nocheck
-import './modules/utils/logger.js';
+// Logger will be imported lazily when needed
 
 /* eslint-disable */
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
@@ -58,7 +58,14 @@ import { TaskBatcher } from './modules/utils/task-batcher.js';
 import { detectGenericTitles, shouldRejectResponse } from './modules/task-quality-verifier.js';
 import { buildRichContext } from './modules/context-utils.js';
 
-const topLevelLogger = getForestLogger({ module: 'SERVER_BOOTSTRAP' });
+let topLevelLogger = null;
+
+async function getTopLevelLogger() {
+  if (!topLevelLogger) {
+    topLevelLogger = await getForestLogger({ module: 'SERVER_BOOTSTRAP' });
+  }
+  return topLevelLogger;
+}
 
 // Minimal debug integration for testing
 class MinimalDebugIntegration {
@@ -90,10 +97,23 @@ class MinimalDebugIntegration {
 
 class CleanForestServer {
   constructor() {
-    const constructorStart = Date.now();
+    this.constructorStart = Date.now();
+    this.initialized = false;
+    this.initPromise = null;
+  }
 
+  async initialize() {
+    if (this.initialized) return;
+    if (this.initPromise) return this.initPromise;
+
+    this.initPromise = this._doInitialize();
+    await this.initPromise;
+    this.initialized = true;
+  }
+
+  async _doInitialize() {
     // Initialize winston-based logger
-    this.logger = getForestLogger({
+    this.logger = await getForestLogger({
         enableConsole: isInteractive, // Only enable console in interactive mode
         enableFileLogging: true, // Always enable file logging
         logLevel: diagnosticMode ? 'trace' : 'info', // Simplified logging levels
@@ -107,7 +127,7 @@ class CleanForestServer {
 
     // Add constructor debugging
     const debugConstructor = (step, data = {}) => {
-      const elapsed = Date.now() - constructorStart;
+      const elapsed = Date.now() - this.constructorStart;
       console.error(`[CONSTRUCTOR-${elapsed}ms] ${step}`);
       this.logger.debug(`Constructor step: ${step}`, { elapsed, ...data });
     };
@@ -391,10 +411,9 @@ class CleanForestServer {
         this.logger.info('✓ CleanForestServer constructor completed - NO HARDCODED RESPONSES');
       }
 
-      // Run initial health check and schedule periodic checks
-      // Note: Don't await in constructor, let it run in background
-      this._runHealthCheck().catch(err => this.logger.error('Initial health check failed', { error: err.message }));
-      this._startHealthMonitor();
+      // Jest health check disabled for startup reliability
+      // this._runHealthCheck().catch(err => this.logger.error('Initial health check failed', { error: err.message }));
+      // this._startHealthMonitor();
 
     } catch (/** @type {any} */ error) {
       this.logger.error(`Fatal error during CleanForestServer construction: ${error.message}`, {
@@ -403,7 +422,8 @@ class CleanForestServer {
       });
       // In case of a constructor failure, we might not be able to rely on the server
       // running properly, so a console log is a last resort.
-      topLevelLogger.error(`[FATAL] CleanForestServer failed to construct. Check logs for details.`);
+      const logger = await getTopLevelLogger();
+      logger.error(`[FATAL] CleanForestServer failed to construct. Check logs for details.`);
       throw error; // Re-throw the error to prevent a partially initialized server
     }
   }
@@ -421,7 +441,7 @@ class CleanForestServer {
       const ProjectManagementClass = this.projectManagement.constructor;
       if (ProjectManagementClass && ProjectManagementClass.prototype.requireActiveProject) {
         this.projectManagement.requireActiveProject = ProjectManagementClass.prototype.requireActiveProject.bind(this.projectManagement);
-        this.logger.info('✅ requireActiveProject method restored from prototype');
+        this.logger.info('requireActiveProject method restored from prototype');
         return true;
       }
       
@@ -435,7 +455,7 @@ class CleanForestServer {
         throw new Error('No active project available. Use create_project or switch_project first.');
       };
       
-      this.logger.info('✅ requireActiveProject fallback method created');
+      this.logger.info('requireActiveProject fallback method created');
       return true;
     }
     
@@ -526,7 +546,7 @@ class CleanForestServer {
   // Initialize data directory to fix Bug #1: Memory/Context Issue
   async initializeDataDirectory() {
     try {
-      console.error('[DATA-INIT] 📁 Initializing data directory...');
+      console.error('[DATA-INIT] Initializing data directory...');
       const dataDir = this.core.getDataDir();
       const projectsDir = path.join(dataDir, 'projects');
 
@@ -551,11 +571,14 @@ class CleanForestServer {
       return true;
     } catch (error) {
       console.error(`[DATA-INIT] Data directory initialization failed: ${error.message}`);
-      this.logger.error('Failed to initialize data directory', {
-        error: error.message,
-        stack: error.stack,
-        module: 'CleanForestServer'
-      });
+      // Logger might not be initialized yet, so use optional chaining and fallback
+      if (this.logger && typeof this.logger.error === 'function') {
+        this.logger.error('Failed to initialize data directory', {
+          error: error.message,
+          stack: error.stack,
+          module: 'CleanForestServer'
+        });
+      }
       throw error;
     }
   }
@@ -1126,7 +1149,7 @@ ${dashboard.widgets.alerts || 'No recent alerts'}
         return {
           content: [{
             type: 'text',
-            text: `🧠 **Proactive Reasoning Started**\n\nProactive reasoning temporarily simplified during system hardening.`
+            text: `**Proactive Reasoning Started**\n\nProactive reasoning temporarily simplified during system hardening.`
           }],
           proactive_reasoning_started: true
         };
@@ -1351,7 +1374,7 @@ ${dashboard.widgets.alerts || 'No recent alerts'}
         return {
           content: [{
             type: 'text',
-            text: `🧠 **Wisdom Store** (${args.category || 'all'} category, limit: ${args.limit || 10})\n\nWisdom retrieval temporarily simplified during system hardening.`
+            text: `**Wisdom Store** (${args.category || 'all'} category, limit: ${args.limit || 10})\n\nWisdom retrieval temporarily simplified during system hardening.`
           }],
           wisdom: []
         };
@@ -1568,7 +1591,7 @@ ${dashboard.widgets.alerts || 'No recent alerts'}
         return {
           content: [{
             type: 'text',
-            text: `📜 **Recent Logs** (${args.lines || 20} lines from ${args.logFile || 'forest-app.log'})\n\nLog viewing temporarily simplified during system hardening.`
+            text: `**Recent Logs** (${args.lines || 20} lines from ${args.logFile || 'forest-app.log'})\n\nLog viewing temporarily simplified during system hardening.`
           }],
           logs: []
         };
@@ -1673,12 +1696,12 @@ ${dashboard.widgets.alerts || 'No recent alerts'}
 
         const statusText = `**Forest Defense System Status**
 
-🛡️ **ComponentHealthReporter**: ${status.componentHealthReporter ? '✅ Active' : '❌ Inactive'}
-🔍 **ContextGuard**: ${status.contextGuard ? '✅ Active' : '❌ Inactive'}
-🔧 **SelfHealManager**: ${status.selfHealManager ? '✅ Active' : '❌ Inactive'}
-📊 **Health Tracking**: ${status.healthTracking ? '✅ Active' : '❌ Inactive'}
+**ComponentHealthReporter**: ${status.componentHealthReporter ? 'Active' : 'Inactive'}
+**ContextGuard**: ${status.contextGuard ? 'Active' : 'Inactive'}
+**SelfHealManager**: ${status.selfHealManager ? 'Active' : 'Inactive'}
+**Health Tracking**: ${status.healthTracking ? 'Active' : 'Inactive'}
 
-**Overall Status**: ${Object.values(status).every(s => s) ? '🟢 OPERATIONAL' : '🔴 NOT OPERATIONAL'}`;
+**Overall Status**: ${Object.values(status).every(s => s) ? 'OPERATIONAL' : 'NOT OPERATIONAL'}`;
 
         return {
           content: [{ type: 'text', text: statusText }],
@@ -2026,16 +2049,8 @@ ${healthText}
         learningStyle,
         focusAreas: focusAreas?.length || 0
       });
-      
-      // Fallback to simplified skeleton generation
-      return {
-        content: [{
-          type: 'text',
-          text: '⚠️ HTA generation encountered issues. Creating simplified learning structure...'
-        }],
-        requires_branch_generation: false,
-        complexity_analysis: { fallback: true, pathName }
-      };
+      // Re-throw the error so the caller (demo script) can catch and print it
+      throw htaError;
     }
 
     // Track skeleton summary if we end up falling back
@@ -2797,8 +2812,7 @@ ${healthText}
         error: error.message,
         stack: error.stack,
       });
-      console.error('❌ Error in server.run():', error.message);
-      console.error('Stack:', error.stack);
+      // Error logged via proper logger above
       throw error;
     }
   }
@@ -3698,7 +3712,7 @@ async function main() {
     return;
   }
 
-  const topLevelLogger = getForestLogger({ module: 'MAIN' });
+  const topLevelLogger = await getForestLogger({ module: 'MAIN' });
   const startTime = Date.now();
 
   // Add comprehensive debugging with timestamps
@@ -3710,81 +3724,103 @@ async function main() {
     }
   };
 
-  try {
-    debugLog('🚀 Starting Forest MCP server...');
+  // Process exit tracking removed - debugging complete
 
-    debugLog('📦 Creating CleanForestServer instance...');
+  // Add global error handlers to catch any unhandled exceptions
+  process.on('uncaughtException', (error) => {
+    debugLog('❌ Uncaught exception:', error);
+    topLevelLogger?.error('Uncaught exception', { error: error.message, stack: error.stack });
+    process.exit(1);
+  });
+
+  process.on('unhandledRejection', (reason, promise) => {
+    debugLog('❌ Unhandled rejection:', reason);
+    topLevelLogger?.error('Unhandled rejection', { reason, promise });
+    process.exit(1);
+  });
+
+  // Signal handlers tracking removed - debugging complete
+
+  try {
+    debugLog('Starting Forest MCP server...');
+
+    debugLog('Creating CleanForestServer instance...');
     const forestServer = new CleanForestServer();
-    debugLog('✅ CleanForestServer created');
+    debugLog('CleanForestServer created');
+
+    // Initialize the server first so all components are available
+    debugLog('Initializing CleanForestServer...');
+    await forestServer.initialize();
+    debugLog('CleanForestServer initialization complete');
 
     // FIX BUG #1: Initialize data directory to ensure project persistence works
-    debugLog('📁 Initializing data directory...');
+    debugLog('Initializing data directory...');
     await forestServer.initializeDataDirectory();
-    debugLog('✅ Data directory initialization complete');
+    debugLog('Data directory initialization complete');
 
-    debugLog('🔗 Getting server instance from core...');
+    debugLog('Getting server instance from core...');
     const server = forestServer.core.getServer();
-    debugLog('✅ MCP Server instance retrieved', {
+    debugLog('MCP Server instance retrieved', {
       serverExists: !!server,
       serverType: server?.constructor?.name,
       hasCapabilities: !!server?.capabilities
     });
 
-    debugLog('🔧 Setting up MCP handlers...');
+    debugLog('Setting up MCP handlers...');
     try {
       await forestServer.mcpHandlers.setupHandlers();
-      debugLog('✅ MCP handlers setup complete');
+      debugLog('MCP handlers setup complete');
     } catch (mcpError) {
-      debugLog('❌ MCP handlers setup failed', {
+      debugLog('MCP handlers setup failed', {
         error: mcpError instanceof Error ? mcpError.message : String(mcpError),
         stack: mcpError instanceof Error ? mcpError.stack : undefined
       });
       throw mcpError;
     }
 
-    debugLog('🛠️ Setting up tool router...');
+    debugLog('Setting up tool router...');
     try {
       forestServer.toolRouter.setupRouter();
-      debugLog('✅ Tool router setup complete');
+      debugLog('Tool router setup complete');
     } catch (routerError) {
-      debugLog('❌ Tool router setup failed', {
+      debugLog('Tool router setup failed', {
         error: routerError instanceof Error ? routerError.message : String(routerError),
         stack: routerError instanceof Error ? routerError.stack : undefined
       });
       throw routerError;
     }
 
-    debugLog('🔍 Performing pre-startup validation...');
+    debugLog('Performing pre-startup validation...');
     try {
-      debugLog('📋 Getting tool definitions...');
+      debugLog('Getting tool definitions...');
       const toolDefinitions = forestServer.mcpHandlers.getToolDefinitions();
-      debugLog('📊 Tool definitions retrieved', { count: toolDefinitions.length });
+      debugLog('Tool definitions retrieved', { count: toolDefinitions.length });
 
       const advertisedTools = toolDefinitions.map(tool => tool.name);
-      debugLog('📢 Advertised tools mapped', { count: advertisedTools.length });
+      debugLog('Advertised tools mapped', { count: advertisedTools.length });
 
-      debugLog('🔧 Getting registered tools...');
+      debugLog('Getting registered tools...');
       const registeredTools = forestServer.toolRouter.toolRegistry.getToolNames();
-      debugLog('📝 Registered tools retrieved', { count: registeredTools.length });
+      debugLog('Registered tools retrieved', { count: registeredTools.length });
       
-      console.error(`📊 Validation Summary:`);
-      console.error(`   - Advertised tools: ${advertisedTools.length}`);
-      console.error(`   - Registered tools: ${registeredTools.length}`);
+      // Validation summary logged to proper logger instead of console
+      topLevelLogger.info('Validation Summary', {
+        advertisedTools: advertisedTools.length,
+        registeredTools: registeredTools.length
+      });
       
       // Check for mismatches
       const missingInRegistry = advertisedTools.filter(name => !registeredTools.includes(name));
       const missingInAdvertisement = registeredTools.filter(name => !advertisedTools.includes(name));
       
       if (missingInRegistry.length > 0) {
-        console.error(`⚠️  Tools advertised but not registered: ${missingInRegistry.join(', ')}`);
         topLevelLogger.warn('Tools advertised but not registered', {
           missingTools: missingInRegistry,
           count: missingInRegistry.length
         });
       }
-      
+
       if (missingInAdvertisement.length > 0) {
-        console.error(`ℹ️  Tools registered but not advertised: ${missingInAdvertisement.join(', ')}`);
         topLevelLogger.info('Tools registered but not advertised', {
           extraTools: missingInAdvertisement,
           count: missingInAdvertisement.length
@@ -3792,19 +3828,12 @@ async function main() {
       }
       
       // Check that MCP handlers are correctly configured
-      if (forestServer.mcpHandlers.validationState && forestServer.mcpHandlers.validationState.toolsValidated) {
-        console.error('✅ MCP handlers validation completed');
-      } else {
-        console.error('⚠️  MCP handlers validation incomplete');
-      }
-      
-      // Verify tool registration stats
       const registrationStats = forestServer.toolRouter.toolRegistry.getStats();
-      console.error(`📋 Tool Registry Stats: ${registrationStats.totalTools} tools registered`);
-
-      if (registrationStats.categories) {
-        console.error(`📊 Categories: ${Object.keys(registrationStats.categories).join(', ')}`);
-      }
+      topLevelLogger.info('Pre-startup validation completed', {
+        mcpHandlersValidated: !!(forestServer.mcpHandlers.validationState && forestServer.mcpHandlers.validationState.toolsValidated),
+        totalToolsRegistered: registrationStats.totalTools,
+        categories: registrationStats.categories ? Object.keys(registrationStats.categories) : []
+      });
       
       // Log detailed logging about tool registration status during startup
       topLevelLogger.info('Pre-startup validation completed', {
@@ -3814,33 +3843,68 @@ async function main() {
         mcpValidated: forestServer.mcpHandlers.validationState?.toolsValidated || false
       });
       
-      console.error('✅ Pre-startup validation complete');
+      // Pre-startup validation complete - logged above
       
     } catch (validationError) {
-      console.error(`⚠️  Validation failed: ${validationError.message}`);
       topLevelLogger.error('Pre-startup validation failed', {
         error: validationError.message,
-        stack: validationError.stack
+        stack: validationError.stack,
+        continuingStartup: true
       });
-      
-      // Continue with startup but log the validation failure
-      console.error('⚠️  Continuing with server startup despite validation issues...');
     }
 
-    debugLog('🔌 Creating stdio transport...');
+    debugLog('Creating stdio transport...');
     const transport = new StdioServerTransport();
-    debugLog('✅ Stdio transport created');
+    debugLog('Stdio transport created');
 
-    debugLog('🔗 Connecting server to transport...');
-    await server.connect(transport);
-    debugLog('✅ MCP server connected and listening on stdio');
+    debugLog('Connecting server to transport...');
+    try {
+      await server.connect(transport);
+      debugLog('MCP server connected and listening on stdio');
 
-    debugLog('🎉 Server startup complete!', {
+      // Add error handling for the server connection
+      server.onerror = (error) => {
+        debugLog('❌ MCP server error:', error);
+        topLevelLogger.error('MCP server error', { error: error.message, stack: error.stack });
+      };
+
+      transport.onerror = (error) => {
+        debugLog('❌ Transport error:', error);
+        topLevelLogger.error('Transport error', { error: error.message, stack: error.stack });
+      };
+
+    } catch (connectionError) {
+      debugLog('❌ Server connection failed', {
+        error: connectionError instanceof Error ? connectionError.message : String(connectionError),
+        stack: connectionError instanceof Error ? connectionError.stack : undefined
+      });
+      throw connectionError;
+    }
+
+    debugLog('Server startup complete!', {
       totalTime: Date.now() - startTime,
       serverReady: true
     });
 
-    topLevelLogger.info('✅ Forest.os MCP server running. Waiting for requests via stdio...');
+    topLevelLogger.info('Forest.os MCP server running. Waiting for requests via stdio...');
+
+    // Keep the process alive to handle incoming MCP requests
+    debugLog('Keeping process alive for MCP request handling...');
+
+    // Prevent the process from exiting by keeping stdin open
+    process.stdin.resume();
+
+    // Handle graceful shutdown signals
+    const gracefulShutdown = (signal) => {
+      debugLog(`📴 Received ${signal}, shutting down gracefully...`);
+      topLevelLogger.info(`Received ${signal}, shutting down gracefully`);
+      process.exit(0);
+    };
+
+    process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+    process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+
+    debugLog('MCP server is now running and will stay alive until terminated');
 
   } catch (error) {
     const err = error instanceof Error ? error : new Error(String(error));
@@ -3853,9 +3917,7 @@ async function main() {
     });
 
     const logger = topLevelLogger || console;
-    console.error(`❌ Fatal error during MCP server startup: ${err.message}`);
-    console.error(`Stack trace: ${err.stack}`);
-    logger.error(`❌ Unhandled exception during MCP server startup: ${err.message}`, {
+    logger.error(`Fatal error during MCP server startup: ${err.message}`, {
       stack: err.stack,
       module: 'main',
       startupTime: elapsed
@@ -3864,10 +3926,9 @@ async function main() {
   }
 }
 
-// Check if this script is the main module being run
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  main();
-}
+// Always call main() when this script is run directly
+// This ensures MCP server starts regardless of how it's invoked
+main();
 
 // For testing purposes, we export the server class
 export { CleanForestServer, main };

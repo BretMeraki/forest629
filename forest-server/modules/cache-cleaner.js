@@ -7,7 +7,14 @@ import { FileSystem } from './utils/file-system.js';
 import { DIRECTORIES } from './constants.js';
 import { getForestLogger } from './winston-logger.js';
 
-const logger = getForestLogger({ module: 'CacheCleaner' });
+let logger = null;
+
+async function getLogger() {
+  if (!logger) {
+    logger = await getForestLogger({ module: 'CacheCleaner' });
+  }
+  return logger;
+}
 
 export class CacheCleaner {
   constructor(forestServer) {

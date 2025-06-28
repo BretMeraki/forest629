@@ -8,14 +8,19 @@ import { FILE_NAMES, DEFAULT_PATHS, HTA_LEVELS } from './constants.js';
 import { buildRichContext, formatConstraintsForPrompt } from './context-utils.js';
 import { FEATURE_FLAGS } from './constants.js';
 import { globalCircuitBreaker } from './utils/llm-circuit-breaker.js';
-import { extractDomain } from './task-intelligence.js';
 
 export class HtaTreeBuilder {
   constructor(dataPersistence, projectManagement, claudeInterface) {
     this.dataPersistence = dataPersistence;
     this.projectManagement = projectManagement;
     this.claudeInterface = claudeInterface;
-    this.logger = console; // Simple logger fallback
+    // Use a silent logger to avoid console output that interferes with MCP JSON
+    this.logger = {
+      info: () => {},
+      warn: () => {},
+      error: () => {},
+      debug: () => {}
+    };
 
     // ENHANCED: Dependency injection validation – detect missing methods early
     try {
@@ -94,9 +99,6 @@ export class HtaTreeBuilder {
    * After initial generation, use branch evolution instead
    */
   async buildHTATree(pathName, learningStyle = 'mixed', focusAreas = [], goalOverride = null, contextOverride = '') {
-    // ENHANCED: Use atomic transaction wrapper for all operations
-    return await this.dataPersistence.executeInTransaction(async (transaction) => {
-    
     try {
       // PHASE 1: DEFENSIVE PROGRAMMING - Comprehensive validation before requireActiveProject call
       if (!this.projectManagement) {
@@ -163,7 +165,7 @@ export class HtaTreeBuilder {
         goal: goalOverride || 'from config',
         focusAreas: focusAreas?.length || 0,
         learningStyle,
-        transaction: transaction.id
+        transactionId: 'none'
       });
 
       // ENHANCED: Load and validate project configuration with null checks
@@ -202,7 +204,7 @@ export class HtaTreeBuilder {
       // CRITICAL: Check if HTA tree already exists - only generate ONCE per project
       const existingHTA = await this.loadPathHTA(projectId, pathName || 'general');
       if (existingHTA && existingHTA.frontierNodes && existingHTA.frontierNodes.length > 0) {
-        console.log(`[HTA] Tree already exists for project ${projectId}, path ${pathName}. Use branch evolution instead.`);
+        // Tree already exists - return existing tree status
 
         // Return existing tree status instead of regenerating
         return {
@@ -220,38 +222,15 @@ export class HtaTreeBuilder {
 
       // ENHANCED: Analyze goal complexity with null checks
       let complexityAnalysis;
-      try {
-        complexityAnalysis = this.analyzeGoalComplexity(config.goal, config.context);
-        if (!complexityAnalysis || typeof complexityAnalysis !== 'object') {
-          throw new Error('Invalid complexity analysis result');
-        }
-      } catch (complexityError) {
-        this.logger.error('[HtaTreeBuilder] Complexity analysis failed, using defaults', {
-          error: complexityError.message
-        });
-        complexityAnalysis = {
-          score: 5,
-          level: 'moderate',
-          recommended_depth: 3,
-          main_branches: 5,
-          sub_branches_per_main: 3,
-          tasks_per_leaf: 8,
-          estimated_tasks: 40,
-          time_estimate: '30 hours'
-        };
+      complexityAnalysis = this.analyzeGoalComplexity(config.goal, config.context);
+      if (!complexityAnalysis || typeof complexityAnalysis !== 'object') {
+        throw new Error('Invalid complexity analysis result');
       }
       
       // ENHANCED: Build rich context with error handling
       let projectContext = {};
-      try {
-        if (typeof buildRichContext === 'function') {
-          projectContext = buildRichContext(config) || {};
-        }
-      } catch (contextError) {
-        this.logger.warn('[HtaTreeBuilder] Failed to build rich context', {
-          error: contextError.message
-        });
-        projectContext = { travellerConstraints: [] };
+      if (typeof buildRichContext === 'function') {
+        projectContext = buildRichContext(config) || {};
       }
       
       // Generate the collaborative prompt for deep branch creation
@@ -289,102 +268,77 @@ export class HtaTreeBuilder {
 
       // ENHANCED: Claude interface with comprehensive null checks
       if (this.claudeInterface && typeof this.claudeInterface.requestIntelligence === 'function') {
-        try {
-          // ENHANCED: Validate prompt before sending to Claude
-          if (!branchPrompt || typeof branchPrompt !== 'string' || branchPrompt.trim().length === 0) {
-            throw new Error('Invalid branch prompt for Claude generation');
+        // ENHANCED: Validate prompt before sending to Claude
+        if (!branchPrompt || typeof branchPrompt !== 'string' || branchPrompt.trim().length === 0) {
+          throw new Error('Invalid branch prompt for Claude generation');
+        }
+        // Request task generation from Claude
+        const claudeResponse = await this.claudeInterface.requestIntelligence('task_generation', {
+          prompt: branchPrompt
+        });
+        // Parse the (potentially richer) response
+        const parsedData = this.parseClaudeResponse(claudeResponse) || {};
+        // Extract tasks and (optionally) a Claude-supplied complexity profile
+        let generatedTasks = [];
+        let claudeComplexityProfile = null;
+        if (Array.isArray(parsedData)) {
+          generatedTasks = parsedData;
+        } else if (parsedData && typeof parsedData === 'object') {
+          if (Array.isArray(parsedData.branch_tasks)) {
+            generatedTasks = parsedData.branch_tasks;
+          } else if (Array.isArray(parsedData.tasks)) {
+            generatedTasks = parsedData.tasks;
           }
-          
-          // Request task generation from Claude
-          const claudeResponse = await this.claudeInterface.requestIntelligence('task_generation', {
-            prompt: branchPrompt
-          });
-          
-          // Parse the (potentially richer) response
-          const parsedData = this.parseClaudeResponse(claudeResponse) || {};
-          
-          // Extract tasks and (optionally) a Claude-supplied complexity profile
-          let generatedTasks = [];
-          let claudeComplexityProfile = null;
-
-          if (Array.isArray(parsedData)) {
-            generatedTasks = parsedData;
-          } else if (parsedData && typeof parsedData === 'object') {
-            if (Array.isArray(parsedData.branch_tasks)) {
-              generatedTasks = parsedData.branch_tasks;
-            } else if (Array.isArray(parsedData.tasks)) {
-              generatedTasks = parsedData.tasks;
+          if (parsedData.complexity_profile) {
+            claudeComplexityProfile = parsedData.complexity_profile;
+          }
+        }
+        // Persist Claude's complexity profile if provided (useful for future adaptation)
+        if (claudeComplexityProfile) {
+          htaData.claude_complexity_profile = claudeComplexityProfile;
+        }
+        // QUALITY CONTROL --------------------------------------------------
+        let reject = false;
+        let shouldRejectResponseFn = null;
+        if (FEATURE_FLAGS.QUALITY_CONTROL_ENABLED) {
+          const mod = await import('./task-quality-verifier.js');
+          shouldRejectResponseFn = mod.shouldRejectResponse;
+          reject = shouldRejectResponseFn(generatedTasks, projectContext);
+          if (reject) {
+            // Claude response rejected - will fall back to skeleton
+          }
+        }
+        if (generatedTasks && generatedTasks.length > 0 && !reject) {
+          // Transform generated tasks into frontierNodes format
+          const frontierNodes = this.transformTasksToFrontierNodes(generatedTasks);
+          // Update HTA data with populated tasks
+          htaData.frontierNodes = frontierNodes;
+          htaData.hierarchyMetadata.total_tasks = frontierNodes.length;
+          htaData.generation_context.awaiting_generation = false;
+          htaData.strategicBranches = this.deriveStrategicBranches(frontierNodes);
+          // Save updated structure with tasks
+          await this.dataPersistence.savePathData(projectId, pathName || 'general', 'hta.json', htaData);
+          // Ensure the updateActivePath call is properly awaited and add error handling
+          if (this.projectManagement && typeof this.projectManagement.updateActivePath === 'function') {
+            try {
+              await this.projectManagement.updateActivePath(pathName || 'general');
+            } catch (syncErr) {
+              this.logger.warn('Failed to sync activePath', { error: syncErr.message });
+              // Don't fail the build, but log for debugging
             }
-            if (parsedData.complexity_profile) {
-              claudeComplexityProfile = parsedData.complexity_profile;
-            }
           }
-
-          // Persist Claude's complexity profile if provided (useful for future adaptation)
-          if (claudeComplexityProfile) {
-            htaData.claude_complexity_profile = claudeComplexityProfile;
-          }
-          
-          // QUALITY CONTROL --------------------------------------------------
-          let reject = false;
-          let shouldRejectResponseFn = null;
-          if (FEATURE_FLAGS.QUALITY_CONTROL_ENABLED) {
-            const mod = await import('./task-quality-verifier.js');
-            shouldRejectResponseFn = mod.shouldRejectResponse;
-            reject = shouldRejectResponseFn(generatedTasks, projectContext);
-            if (reject) {
-              console.warn('[HTA] Claude response rejected by quality verifier – falling back to skeleton');
-            }
-          }
-          
-          if (generatedTasks && generatedTasks.length > 0 && !reject) {
-            // Transform generated tasks into frontierNodes format
-            const frontierNodes = this.transformTasksToFrontierNodes(generatedTasks);
-            
-            // Update HTA data with populated tasks
-            htaData.frontierNodes = frontierNodes;
-            htaData.hierarchyMetadata.total_tasks = frontierNodes.length;
-            htaData.generation_context.awaiting_generation = false;
-            htaData.strategicBranches = this.deriveStrategicBranches(frontierNodes);
-            
-            // Add validation hook before saving
-            transaction.operations.push({
-              type: 'validate',
-              data: htaData,
-              validator: (data) => data.frontierNodes && data.frontierNodes.length > 0,
-              reason: 'HTA data must have frontier nodes'
-            });
-            
-            // Save updated structure with tasks using transaction
-            await this.dataPersistence.savePathData(projectId, pathName || 'general', 'hta.json', htaData, transaction);
-            
-            // Ensure the updateActivePath call is properly awaited and add error handling
-            if (this.projectManagement && typeof this.projectManagement.updateActivePath === 'function') {
-              try {
-                await this.projectManagement.updateActivePath(pathName || 'general');
-              } catch (syncErr) {
-                this.logger.warn('Failed to sync activePath', { error: syncErr.message });
-                // Don't fail the build, but log for debugging
-              }
-            }
-
-            // Transaction will be committed automatically by wrapper
-
-            return {
-              success: true,
-              content: [{
-                type: 'text',
-                text: `**HTA Tree Created with ${frontierNodes.length} Tasks!**\n\n**Your Goal**: ${config.goal}\n\n**Generated Structure**:\n- Tasks Created: ${frontierNodes.length}\n- Complexity Score: ${complexityAnalysis.score}/10\n- Ready to Start Learning!\n\n**Available Tasks**:\n${frontierNodes.slice(0, 3).map(task => `- ${task.title} (${task.difficulty}/5 difficulty)`).join('\n')}\n${frontierNodes.length > 3 ? `- ... and ${frontierNodes.length - 3} more tasks` : ''}\n\n**Next Steps**: Use \`get_next_task\` to start your learning journey!`
-              }],
-              generation_prompt: branchPrompt,
-              complexity_analysis: complexityAnalysis,
-              requires_branch_generation: false,
-              tasks_generated: frontierNodes.length
-            };
-          }
-        } catch (claudeError) {
-          // If Claude generation fails, fall back to skeleton generation
-          console.warn('Claude generation failed, falling back to skeleton:', claudeError.message);
+          // Transaction will be committed automatically by wrapper
+          return {
+            success: true,
+            content: [{
+              type: 'text',
+              text: `**HTA Tree Created with ${frontierNodes.length} Tasks!**\n\n**Your Goal**: ${config.goal}\n\n**Generated Structure**:\n- Tasks Created: ${frontierNodes.length}\n- Complexity Score: ${complexityAnalysis.score}/10\n- Ready to Start Learning!\n\n**Available Tasks**:\n${frontierNodes.slice(0, 3).map(task => `- ${task.title} (${task.difficulty}/5 difficulty)`).join('\n')}${frontierNodes.length > 3 ? `- ... and ${frontierNodes.length - 3} more tasks` : ''}\n\n**Next Steps**: Use \`get_next_task\` to start your learning journey!`
+            }],
+            generation_prompt: branchPrompt,
+            complexity_analysis: complexityAnalysis,
+            requires_branch_generation: false,
+            tasks_generated: frontierNodes.length
+          };
         }
       }
 
@@ -395,16 +349,8 @@ export class HtaTreeBuilder {
       htaData.generation_context.awaiting_generation = false;
       htaData.strategicBranches = this.deriveStrategicBranches(skeletonTasks);
 
-      // Add validation hook before saving
-      transaction.operations.push({
-        type: 'validate',
-        data: htaData,
-        validator: (data) => data.frontierNodes && data.frontierNodes.length > 0,
-        reason: 'HTA data must have frontier nodes'
-      });
-
-      // Save structure with skeleton tasks using transaction
-      await this.dataPersistence.savePathData(projectId, pathName || 'general', 'hta.json', htaData, transaction);
+      // Save structure with skeleton tasks
+      await this.dataPersistence.savePathData(projectId, pathName || 'general', 'hta.json', htaData);
 
       // Ensure activePath is synchronised for skeleton generation as well
       if (this.projectManagement && typeof this.projectManagement.updateActivePath === 'function') {
@@ -429,7 +375,10 @@ export class HtaTreeBuilder {
         requires_branch_generation: false,
         tasks_generated: skeletonTasks.length
       };
-    }, 'buildHTATree'); // End of executeInTransaction wrapper
+    } catch (error) {
+      this.logger.error('[HtaTreeBuilder] Error in buildHTATree', { error: error.message });
+      throw error;
+    }
   }
 
   /**
@@ -832,7 +781,7 @@ ${travellerConstraintBlock}`;
 
       return [];
     } catch (error) {
-      console.warn('Failed to parse Claude response:', error.message);
+      // Failed to parse Claude response - return empty array
       return [];
     }
   }
@@ -951,7 +900,7 @@ ${travellerConstraintBlock}`;
       tasks.push(...branchTasks);
     });
 
-    console.log(`[HTA] Generated ${tasks.length} skeleton tasks across ${strategicBranches.length} branches for complexity ${complexityAnalysis.score}`);
+    // Generated skeleton tasks
     return tasks;
   }
 
@@ -1181,7 +1130,7 @@ ${travellerConstraintBlock}`;
         selected_task: nextTask
       };
     } catch (error) {
-      console.error('[HTA] Error getting next task from existing tree:', error.message);
+      // Error getting next task from existing tree
       return {
         content: [{
           type: 'text',

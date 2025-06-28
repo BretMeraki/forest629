@@ -137,6 +137,14 @@ export class FileSystem {
     }
   }
 
+  static async rename(oldPath, newPath) {
+    try {
+      await fs.rename(oldPath, newPath);
+    } catch (error) {
+      throw new Error(`Failed to rename file from ${oldPath} to ${newPath}: ${error.message}`);
+    }
+  }
+
   /**
    * Read and parse JSON file
    * @param {string} filePath - Path to JSON file
@@ -172,6 +180,39 @@ export class FileSystem {
         throw error; // Re-throw file write errors as-is
       }
       throw new Error(`Failed to serialize JSON for ${filePath}: ${error.message}`);
+    }
+  }
+
+  static async atomicWriteJSON(filePath, data, spaces = 2) {
+    if (!filePath || typeof filePath !== 'string') {
+      throw new Error('Invalid file path for atomic write');
+    }
+    
+    if (data === null || data === undefined) {
+      throw new Error('Cannot write null or undefined data');
+    }
+
+    const tempPath = `${filePath}.tmp_${Date.now()}`;
+    
+    try {
+      // Write to temporary file first
+      await FileSystem.writeJSON(tempPath, data, spaces);
+      
+      // Atomic move to final location
+      await FileSystem.rename(tempPath, filePath);
+      
+    } catch (error) {
+      // Clean up temp file if it exists
+      try {
+        if (await FileSystem.exists(tempPath)) {
+          await FileSystem.deleteFile(tempPath);
+        }
+      } catch (cleanupError) {
+        // Ignore cleanup errors, but log them if logger is available
+        console.warn(`Failed to cleanup temp file ${tempPath}: ${cleanupError.message}`);
+      }
+      
+      throw new Error(`Atomic write failed: ${error.message}`);
     }
   }
 

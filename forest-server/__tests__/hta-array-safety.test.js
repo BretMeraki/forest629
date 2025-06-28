@@ -1,5 +1,5 @@
 import path from 'path';
-import { DataPersistence } from '../data-persistence.js';
+import { DataPersistence } from '../modules/data-persistence.js';
 
 describe('HTA Array Safety – _validateHTAStructure', () => {
   const tempDir = path.join(process.cwd(), '.tmp-test-data');

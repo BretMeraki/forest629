@@ -3,7 +3,7 @@
  * Custom Jest reporter that publishes component health results to Memory MCP using bulk set_many.
  * This is a lightweight initial implementation – it can be extended with richer metadata later.
  */
-import fs from 'fs';
+import { FileSystem } from './file-system.js';
 import path from 'path';
 // @ts-nocheck
 
@@ -16,9 +16,9 @@ export default class ComponentHealthReporter {
   }
 
   // Helper to read current memory store
-  _loadMemory() {
+  async _loadMemory() {
     try {
-      const raw = fs.readFileSync(this.memoryFile, 'utf8');
+      const raw = await FileSystem.readFile(this.memoryFile, 'utf8');
       return JSON.parse(raw);
     } catch (err) {
       // Only log if it's not a simple "file doesn't exist" error
@@ -30,9 +30,9 @@ export default class ComponentHealthReporter {
   }
 
   // Helper to write memory store atomically
-  _saveMemory(store) {
+  async _saveMemory(store) {
     try {
-      fs.writeFileSync(this.memoryFile, JSON.stringify(store, null, 2));
+      await FileSystem.writeFile(this.memoryFile, JSON.stringify(store, null, 2));
     } catch (err) {
       /* eslint-disable no-console */
       console.error('[ComponentHealthReporter] Failed to write memory file', err);

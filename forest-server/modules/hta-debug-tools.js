@@ -6,7 +6,14 @@
 import { FileSystem } from './utils/file-system.js';
 import { getForestLogger } from './winston-logger.js';
 
-const logger = getForestLogger({ module: 'HTADebugTools' });
+let logger = null;
+
+async function getLogger() {
+  if (!logger) {
+    logger = await getForestLogger({ module: 'HTADebugTools' });
+  }
+  return logger;
+}
 
 export class HTADebugTools {
   constructor(forestServer) {

@@ -8,7 +8,14 @@
 import { SCORING, DEFAULT_PATHS, TIME_CONVERSION } from '../constants.js';
 import { getForestLogger } from '../winston-logger.js';
 
-const logger = getForestLogger({ module: 'TaskScorer' });
+let logger = null;
+
+async function getLogger() {
+  if (!logger) {
+    logger = await getForestLogger({ module: 'TaskScorer' });
+  }
+  return logger;
+}
 
 export class TaskScorer {
   /**

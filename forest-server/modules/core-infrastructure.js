@@ -4,7 +4,7 @@
  */
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
-import path from 'path';
+import * as path from 'path';
 import os from 'os';
 import ContextGuard from './context-guard.js';
 import SelfHealManager from './self-heal-manager.js';

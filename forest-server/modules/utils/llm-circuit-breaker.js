@@ -7,9 +7,9 @@
  * fallback responses when the circuit is open.
  */
 
-import { getForestLogger } from '../../utils/logger.js';
+// @ts-nocheck
 
-const logger = getForestLogger({ module: 'LLMCircuitBreaker' });
+import logger from './lightweight-logger.js';
 
 /**
  * Circuit breaker states

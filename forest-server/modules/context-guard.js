@@ -4,7 +4,7 @@
  * Lightweight initial implementation that validates component health against Memory MCP before allowing operations.
  */
 import EventEmitter from 'events';
-import fs from 'fs';
+import { FileSystem } from './utils/file-system.js';
 import path from 'path';
 
 class ContextGuard extends EventEmitter {
@@ -16,9 +16,9 @@ class ContextGuard extends EventEmitter {
     this.cacheTTLms = 10_000; // 10-s TTL for validation cache
   }
 
-  _loadMemory() {
+  async _loadMemory() {
     try {
-      const raw = fs.readFileSync(this.memoryFile, 'utf8');
+      const raw = await FileSystem.readFile(this.memoryFile, 'utf8');
       return JSON.parse(raw);
     } catch (_) {
       return {};

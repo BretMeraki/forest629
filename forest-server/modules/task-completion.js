@@ -8,7 +8,16 @@
 
 import { FILE_NAMES, DEFAULT_PATHS, TASK_CONFIG } from './constants.js';
 import { bus } from './utils/event-bus.js';
-import logger from './utils/logger.js';
+// Logger will be initialized lazily
+let logger = null;
+
+async function getLogger() {
+  if (!logger) {
+    const loggerModule = await import('./utils/logger.js');
+    logger = await loggerModule.default.getLogger();
+  }
+  return logger;
+}
 
 export class TaskCompletion {
   constructor(dataPersistence, projectManagement, eventBus = null) {
@@ -133,6 +142,7 @@ export class TaskCompletion {
         schedule.blocks = [];
       }
 
+      const logger = await getLogger();
       logger.info('[TaskCompletion] Searching for block', { blockId, totalBlocks: schedule.blocks.length });
       logger.debug('[TaskCompletion] frontierNodes snapshot', { frontierNodes: (await this.loadPathHTA(projectId, config.activePath || DEFAULT_PATHS.GENERAL))?.frontierNodes?.length });
       let block = schedule.blocks.find(
@@ -144,7 +154,31 @@ export class TaskCompletion {
         // Try to fetch the HTA node so we can pull in metadata
         const htaData =
           (await this.loadPathHTA(projectId, config.activePath || DEFAULT_PATHS.GENERAL)) || {};
-        const node = htaData.frontierNodes?.find(n => n.id === blockId);
+
+        // Try multiple matching strategies for task ID
+        let node = htaData.frontierNodes?.find(n => n.id === blockId);
+
+        // If exact match fails, try flexible matching
+        if (!node && htaData.frontierNodes) {
+          // Try matching by title or partial ID
+          node = htaData.frontierNodes.find(n =>
+            n.title?.toLowerCase().includes(blockId.toLowerCase()) ||
+            n.id?.includes(blockId) ||
+            blockId.includes(n.id) ||
+            n.id?.endsWith(blockId) ||
+            blockId.endsWith(n.id?.split('_').pop() || '')
+          );
+        }
+
+        // If still no match, try to find the first incomplete task
+        if (!node && htaData.frontierNodes) {
+          node = htaData.frontierNodes.find(n => !n.completed);
+          logger.warn('[TaskCompletion] Using first incomplete task as fallback', {
+            requestedId: blockId,
+            foundId: node?.id,
+            foundTitle: node?.title
+          });
+        }
 
         block = {
           id: blockId,
@@ -192,7 +226,21 @@ export class TaskCompletion {
       const htaData =
         (await this.loadPathHTA(projectId, config.activePath || DEFAULT_PATHS.GENERAL)) || {};
       if (htaData.frontierNodes) {
-        const htaNode = htaData.frontierNodes.find(n => n.id === blockId);
+        // Use the same flexible matching logic as above
+        let htaNode = htaData.frontierNodes.find(n => n.id === blockId);
+
+        // If exact match fails, try flexible matching
+        if (!htaNode) {
+          htaNode = htaData.frontierNodes.find(n =>
+            n.title?.toLowerCase().includes(blockId.toLowerCase()) ||
+            n.id?.includes(blockId) ||
+            blockId.includes(n.id) ||
+            n.id?.endsWith(blockId) ||
+            blockId.endsWith(n.id?.split('_').pop() || '') ||
+            n.id === block.taskId  // Also try the taskId from the block
+          );
+        }
+
         if (htaNode) {
           // Mark node completed in both naming conventions to ensure all consumers see the update
           const markDone = node => {

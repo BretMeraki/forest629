@@ -46,29 +46,19 @@ export class McpHandlers {
     logger.event('MCP_HANDLERS_SETUP_START');
 
     // NEW: Perform tool registration validation during MCP handler setup
-    await this.performToolRegistrationValidation();
-
-    // Add initialize handler debugging - this might be the issue
-    logger.event('CHECKING_INITIALIZE_HANDLER');
     try {
-      // The MCP SDK should handle initialize automatically, but let's debug it
-      this.server.onRequest = new Proxy(this.server.onRequest || (() => {}), {
-        apply(target, thisArg, argumentsList) {
-          const [method, params] = argumentsList;
-          logger.event('MCP_REQUEST_RECEIVED', { method, hasParams: !!params });
-          if (method === 'initialize') {
-            logger.event('INITIALIZE_REQUEST_PROCESSING', params);
-          }
-          return target.apply(thisArg, argumentsList);
-        },
+      await this.performToolRegistrationValidation();
+      logger.event('TOOL_REGISTRATION_VALIDATION_COMPLETED');
+    } catch (error) {
+      logger.error('TOOL_REGISTRATION_VALIDATION_FAILED_IN_SETUP', {
+        error: error.message,
+        stack: error.stack
       });
-    } catch (/** @type {unknown} */ error) {
-      const err = error instanceof Error ? error : new Error(String(error));
-      logger.error('INITIALIZE_HANDLER_DEBUG_ERROR', {
-        error: err.message,
-        stack: err.stack,
-      });
+      // Continue with setup even if validation fails
     }
+
+    // MCP SDK handles initialize automatically - no manual handler needed
+    logger.event('RELYING_ON_MCP_SDK_INITIALIZE_HANDLER');
 
     logger.event('SETTING_LIST_TOOLS_HANDLER');
     this.server.setRequestHandler(ListToolsRequestSchema, async () => {

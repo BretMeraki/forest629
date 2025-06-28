@@ -1,0 +1,27 @@
+{
+  "id": "simple-test-1751067100167",
+  "goal": "Learn JavaScript",
+  "specific_interests": [],
+  "learning_paths": [
+    {
+      "path_name": "general",
+      "priority": "high"
+    }
+  ],
+  "context": "",
+  "constraints": {},
+  "existing_credentials": [],
+  "current_habits": {},
+  "life_structure_preferences": {
+    "focus_duration": "30 minutes",
+    "wake_time": "08:00",
+    "sleep_time": "22:00"
+  },
+  "urgency_level": "medium",
+  "success_metrics": [],
+  "created_at": "2025-06-27T23:31:40.168Z",
+  "knowledge_level": 1,
+  "skill_mappings": {},
+  "progress": 0,
+  "activePath": "general"
+}

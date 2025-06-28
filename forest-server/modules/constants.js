@@ -130,7 +130,7 @@ export const DEFAULT_PATHS = {
 
 // Path constants for common operations
 export const PATHS = {
-  HOME: () => process.env.HOME || process.env.USERPROFILE,
+  HOME: () => process.env.HOME || process.env.USERPROFILE || process.cwd(), // fallback to cwd if all else fails
   DATA_DIR: () => process.env.FOREST_DATA_DIR || `${PATHS.HOME()}/${DEFAULT_DATA_DIR}`,
   PROJECT_DIR: (projectId) => `${PATHS.DATA_DIR()}/${DIRECTORIES.PROJECTS}/${projectId}`,
   PATH_DIR: (projectId, pathName) => `${PATHS.PROJECT_DIR(projectId)}/${DIRECTORIES.PATHS}/${pathName}`

@@ -8,7 +8,7 @@
 import { FileSystem } from './utils/file-system.js';
 import { CacheManager } from './utils/cache-manager.js';
 import { DIRECTORIES, FILE_NAMES } from './constants.js';
-import logger from './utils/logger.js';
+import logger from './utils/lightweight-logger.js';
 
 export class DataPersistence {
   constructor(dataDir) {
@@ -96,7 +96,7 @@ export class DataPersistence {
 
       const projectDir = this.getProjectDir(projectId);
       await this.ensureDirectoryExists(projectDir);
-      const filePath = path.join(projectDir, fileName);
+      const filePath = FileSystem.join(projectDir, fileName);
 
       // ENHANCED: Transaction support with atomic operations
       if (transaction) {
@@ -203,7 +203,7 @@ export class DataPersistence {
 
       const pathDir = this.getPathDir(projectId, pathName);
       await this.ensureDirectoryExists(pathDir);
-      const filePath = path.join(pathDir, fileName);
+      const filePath = FileSystem.join(pathDir, fileName);
 
       // ENHANCED: Transaction support with atomic operations
       if (transaction) {
@@ -619,36 +619,9 @@ export class DataPersistence {
    * ENHANCED: Atomic write operation with proper error handling
    */
   async _atomicWriteJSON(filePath, data) {
-    if (!filePath || typeof filePath !== 'string') {
-      throw new Error('Invalid file path for atomic write');
-    }
-    
-    if (data === null || data === undefined) {
-      throw new Error('Cannot write null or undefined data');
-    }
-
-    const tempPath = `${filePath}.tmp_${Date.now()}`;
-    
     try {
-      // Write to temporary file first
-      await fs.writeFile(tempPath, JSON.stringify(data, null, 2), 'utf8');
-      
-      // Atomic move to final location
-      await fs.rename(tempPath, filePath);
-      
+      await FileSystem.atomicWriteJSON(filePath, data);
     } catch (error) {
-      // Clean up temp file if it exists
-      try {
-        if (await this.fileExists(tempPath)) {
-          await this.deleteFile(tempPath);
-        }
-      } catch (cleanupError) {
-        logger.warn('[DataPersistence] Failed to cleanup temp file', {
-          tempPath,
-          error: cleanupError.message
-        });
-      }
-      
       throw new Error(`Atomic write failed: ${error.message}`);
     }
   }

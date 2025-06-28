@@ -172,20 +172,20 @@ export class MemorySync {
     return process.env.FOREST_MEMORY_FILE || 'memory.json';
   }
 
-  _loadMemory() {
-    const fs = require('fs');
+  async _loadMemory() {
+    const { FileSystem } = await import('./utils/file-system.js');
     try {
-      const raw = fs.readFileSync(this.memoryFile, 'utf8');
+      const raw = await FileSystem.readFile(this.memoryFile, 'utf8');
       return JSON.parse(raw);
     } catch (_) {
       return {};
     }
   }
 
-  _saveMemory(store) {
-    const fs = require('fs');
+  async _saveMemory(store) {
+    const { FileSystem } = await import('./utils/file-system.js');
     try {
-      fs.writeFileSync(this.memoryFile, JSON.stringify(store, null, 2));
+      await FileSystem.writeFile(this.memoryFile, JSON.stringify(store, null, 2));
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error('[MemorySync] Failed to write memory file', err);

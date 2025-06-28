@@ -11,7 +11,7 @@
  */
 
 import winston from 'winston';
-import * as fs from 'fs';
+import { FileSystem } from './utils/file-system.js';
 import * as path from 'path';
 import * as os from 'os';
 import { fileURLToPath, URL } from 'url';
@@ -51,10 +51,10 @@ const isInteractive = !!process.stdin.isTTY;
 /**
  * Create the main winston logger instance
  */
-export function createWinstonLogger(options = {}) {
+export async function createWinstonLogger(options = {}) {
   // Use module location to resolve logs directory, not current working directory
   // This fixes issues when Claude Desktop runs the server from a different working directory
-  const moduleDir = path.dirname(new URL(import.meta.url).pathname);
+  const moduleDir = path.dirname(fileURLToPath(import.meta.url));
   const projectRoot = path.resolve(moduleDir, '../'); // modules -> project root
   const defaultLogDirectory = path.resolve(projectRoot, 'logs');
 
@@ -88,8 +88,8 @@ export function createWinstonLogger(options = {}) {
 
   // Ensure log directory exists with improved error handling
   try {
-    if (!fs.existsSync(finalLogDirectory)) {
-      fs.mkdirSync(finalLogDirectory, { recursive: true });
+    if (!(await FileSystem.exists(finalLogDirectory))) {
+      await FileSystem.ensureDirectoryExists(finalLogDirectory);
     }
   } catch (error) {
     // Fallback to the project root (directory of the main script) if CWD is root or invalid
@@ -111,8 +111,8 @@ export function createWinstonLogger(options = {}) {
       console.error(`Attempting fallback to: ${fallbackLogDir}`);
     }
 
-    if (!fs.existsSync(fallbackLogDir)) {
-      fs.mkdirSync(fallbackLogDir, { recursive: true });
+    if (!(await FileSystem.exists(fallbackLogDir))) {
+      await FileSystem.ensureDirectoryExists(fallbackLogDir);
     }
 
     // Update the finalLogDirectory reference for the rest of the function
@@ -298,14 +298,18 @@ export function createWinstonLogger(options = {}) {
  */
 export class ForestLogger {
   constructor(options = {}) {
-    this.logger = createWinstonLogger(options);
+    this.initPromise = this.initializeLogger(options);
     this.performanceMetrics = new Map();
     this.memoryThreshold = options.memoryThreshold || 500 * 1024 * 1024; // 500MB
     this.startTime = Date.now();
+  }
 
+  async initializeLogger(options) {
+    this.logger = await createWinstonLogger(options);
+    
     // Start background monitoring
     this.startMonitoring();
-
+    
     // Initialize with system info
     this.logSystemInfo();
   }
@@ -605,9 +609,10 @@ let forestLoggerInstance = null;
 /**
  * Get or create the Forest logger instance
  */
-export function getForestLogger(options = {}) {
+export async function getForestLogger(options = {}) {
   if (!forestLoggerInstance) {
     forestLoggerInstance = new ForestLogger(options);
+    await forestLoggerInstance.initPromise;
   }
   return forestLoggerInstance;
 }

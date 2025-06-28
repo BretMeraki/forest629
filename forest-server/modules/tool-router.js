@@ -13,11 +13,19 @@ export class ToolRouter {
   constructor(server, forestServer) {
     this.server = server;
     this.forestServer = forestServer;
-    // Path for persistent stack-trace log
-    this.stackTraceLogPath = getDatedLogPath('stack');
+    // Path for persistent stack-trace log (initialized lazily)
+    this.stackTraceLogPath = null;
     // Initialize tool registry
     this.toolRegistry = new ToolRegistry();
     this.registerAllTools();
+  }
+
+  // Get stack trace log path lazily
+  async getStackTraceLogPath() {
+    if (!this.stackTraceLogPath) {
+      this.stackTraceLogPath = await getDatedLogPath('stack');
+    }
+    return this.stackTraceLogPath;
   }
 
   // Lightweight stack-trace logger – called on every tool invocation
@@ -44,8 +52,9 @@ export class ToolRouter {
         logTime: startTime
       };
 
-      writeJsonLine(this.stackTraceLogPath, entry);
-      console.error(`[STACK-TRACE] Written to ${this.stackTraceLogPath} (${Date.now() - startTime}ms)`);
+      const stackTraceLogPath = await this.getStackTraceLogPath();
+      writeJsonLine(stackTraceLogPath, entry);
+      console.error(`[STACK-TRACE] Written to ${stackTraceLogPath} (${Date.now() - startTime}ms)`);
     } catch (err) {
       console.error(`[STACK-TRACE] Error writing log: ${err.message}`);
       console.error('[STACK-TRACE] Stack trace of logging error:', err.stack);
@@ -317,10 +326,10 @@ export class ToolRouter {
     debugLogger.logEvent('TOOL_ROUTER_SETUP_START');
 
     if (isTerminal) {
-      console.error('🔧 DEBUG: ToolRouter setupRouter() called with AUTOMATIC TRUTHFUL FILTER');
+      console.error('DEBUG: ToolRouter setupRouter() called with AUTOMATIC TRUTHFUL FILTER');
     }
 
-    debugRouter('🔧 Setting up call tool handler...');
+    debugRouter('Setting up call tool handler...');
     debugLogger.logEvent('SETTING_CALL_TOOL_HANDLER');
     this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
       debugLogger.logEvent('CALL_TOOL_REQUEST_RECEIVED', { tool: request.params.name });
@@ -359,7 +368,7 @@ export class ToolRouter {
     debugLogger.logEvent('CALL_TOOL_HANDLER_SET');
 
     if (isTerminal) {
-      console.error('🔧 DEBUG: CallToolRequestSchema handler registration completed');
+      console.error('DEBUG: CallToolRequestSchema handler registration completed');
     }
 
     debugRouter('Tool router setup complete!', {

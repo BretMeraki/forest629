@@ -25,10 +25,10 @@ export class McpHandlers {
       }
     };
 
-    debugSetup('🚀 Starting MCP handlers setup...');
+    debugSetup('Starting MCP handlers setup...');
     debugLogger.logEvent('MCP_HANDLERS_SETUP_START');
 
-    debugSetup('🔍 Checking initialize handler...');
+    debugSetup('Checking initialize handler...');
     debugLogger.logEvent('CHECKING_INITIALIZE_HANDLER');
     try {
       // The MCP SDK should handle initialize automatically, but let's debug it
@@ -42,7 +42,7 @@ export class McpHandlers {
           return target.apply(thisArg, argumentsList);
         }
       });
-      debugSetup('✅ Initialize handler proxy set up');
+      debugSetup('Initialize handler proxy set up');
     } catch (error) {
       const err = error instanceof Error ? error : new Error(String(error));
       debugSetup('❌ Initialize handler setup failed', { error: err.message });
@@ -52,7 +52,7 @@ export class McpHandlers {
       });
     }
 
-    debugSetup('📋 Setting up list tools handler...');
+    debugSetup('Setting up list tools handler...');
     debugLogger.logEvent('SETTING_LIST_TOOLS_HANDLER');
     this.server.setRequestHandler(ListToolsRequestSchema, async () => {
       debugSetup('📥 List tools request received');
@@ -87,13 +87,25 @@ export class McpHandlers {
 
     // Build minimal Zod schemas for legacy probes so setRequestHandler accepts them
     const makeEmptyRequestSchema = async (methodName) => {
-      const { z } = await import('zod');
-      return z.object({
-        jsonrpc: z.literal('2.0').optional(),
-        method: z.literal(methodName),
-        params: z.any().optional(),
-        id: z.union([z.number(), z.string()]).optional()
-      });
+      try {
+        const { z } = await import('zod');
+        const schema = z.object({
+          jsonrpc: z.literal('2.0').optional(),
+          method: z.literal(methodName),
+          params: z.any().optional(),
+          id: z.union([z.number(), z.string()]).optional()
+        });
+        
+        // Verify the schema has the parse method
+        if (typeof schema.parse !== 'function') {
+          throw new Error(`Schema for ${methodName} does not have parse method`);
+        }
+        
+        return schema;
+      } catch (error) {
+        console.error(`Error creating schema for ${methodName}:`, error);
+        throw new Error(`Failed to create schema for ${methodName}: ${error.message}`);
+      }
     };
 
     try {
@@ -115,8 +127,19 @@ export class McpHandlers {
       };
 
       debugLogger.logEvent('SETTING_RESOURCES_HANDLER');
+      
+      // Verify schema before using
+      if (!resourcesSchema || typeof resourcesSchema.parse !== 'function') {
+        throw new Error('resourcesSchema is invalid or missing parse method');
+      }
       this.server.setRequestHandler(resourcesSchema, emptyArrayResponder('resources'));
+      
       debugLogger.logEvent('SETTING_PROMPTS_HANDLER');
+      
+      // Verify schema before using
+      if (!promptsSchema || typeof promptsSchema.parse !== 'function') {
+        throw new Error('promptsSchema is invalid or missing parse method');
+      }
       this.server.setRequestHandler(promptsSchema, emptyArrayResponder('prompts'));
       debugLogger.logEvent('LEGACY_SCHEMAS_COMPLETE');
     } catch (error) {
@@ -128,7 +151,7 @@ export class McpHandlers {
       throw error;
     }
 
-    debugSetup('✅ MCP handlers setup complete!', {
+    debugSetup('MCP handlers setup complete!', {
       totalTime: Date.now() - setupStart,
       handlersRegistered: true
     });

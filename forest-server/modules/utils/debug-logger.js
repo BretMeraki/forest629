@@ -3,7 +3,7 @@
  * Provides comprehensive debugging and error tracking for MCP server issues
  */
 
-import * as fs from 'fs';
+import { FileSystem } from './file-system.js';
 import * as path from 'path';
 import { URL } from 'url';
 
@@ -22,17 +22,17 @@ export class DebugLogger {
     }
     this.initTimestamp = Date.now();
     this.events = [];
-    this.setupLogDir();
     this.setupProcessListeners();
+    // Note: setupLogDir() must be called manually with await
 
     // Track all async operations
     this.pendingOperations = new Map();
     this.operationCounter = 0;
   }
 
-  setupLogDir() {
-    if (!fs.existsSync(this.logDir)) {
-      fs.mkdirSync(this.logDir, { recursive: true });
+  async setupLogDir() {
+    if (!(await FileSystem.exists(this.logDir))) {
+      await FileSystem.ensureDirectoryExists(this.logDir);
     }
   }
 
@@ -166,7 +166,7 @@ export class DebugLogger {
     }
   }
 
-  flushLogs() {
+  async flushLogs() {
     try {
       const logFile = path.join(this.logDir, `debug-${new Date().toISOString().split('T')[0]}.json`);
       const summary = {
@@ -176,7 +176,7 @@ export class DebugLogger {
         events: this.events
       };
 
-      fs.writeFileSync(logFile, JSON.stringify(summary, null, 2));
+      await FileSystem.writeFile(logFile, JSON.stringify(summary, null, 2));
 
       // Also create a readable summary
       const summaryFile = path.join(this.logDir, `debug-summary-${new Date().toISOString().split('T')[0]}.txt`);
@@ -202,7 +202,7 @@ export class DebugLogger {
         }
       }
 
-      fs.writeFileSync(summaryFile, summaryText);
+      await FileSystem.writeFile(summaryFile, summaryText);
 
     } catch (error) {
       console.error('Failed to flush debug logs:', error.message);
@@ -222,5 +222,17 @@ export class DebugLogger {
   }
 }
 
-// Global debug logger instance
-export const debugLogger = new DebugLogger();
+// Global debug logger instance (lazy initialization)
+let _debugLogger = null;
+
+export function getDebugLogger() {
+  if (!_debugLogger) {
+    _debugLogger = new DebugLogger();
+    // Initialize async setup when first accessed
+    _debugLogger.setupLogDir().catch(console.error);
+  }
+  return _debugLogger;
+}
+
+// For backward compatibility
+export const debugLogger = getDebugLogger();
