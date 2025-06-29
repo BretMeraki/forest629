@@ -187,32 +187,47 @@ export class FileSystem {
     if (!filePath || typeof filePath !== 'string') {
       throw new Error('Invalid file path for atomic write');
     }
-    
+
     if (data === null || data === undefined) {
       throw new Error('Cannot write null or undefined data');
     }
 
-    const tempPath = `${filePath}.tmp_${Date.now()}`;
-    
-    try {
-      // Write to temporary file first
-      await FileSystem.writeJSON(tempPath, data, spaces);
-      
-      // Atomic move to final location
-      await FileSystem.rename(tempPath, filePath);
-      
-    } catch (error) {
-      // Clean up temp file if it exists
+    // CRITICAL FIX: Implement retry mechanism for Windows file locking issues
+    const maxRetries = 3;
+    const retryDelay = 50; // ms
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      const tempPath = `${filePath}.tmp_${Date.now()}_${attempt}`;
+
       try {
-        if (await FileSystem.exists(tempPath)) {
-          await FileSystem.deleteFile(tempPath);
+        // Write to temporary file first
+        await FileSystem.writeJSON(tempPath, data, spaces);
+
+        // Atomic move to final location with retry logic
+        await FileSystem.rename(tempPath, filePath);
+
+        // Success - exit retry loop
+        return;
+
+      } catch (error) {
+        // Clean up temp file if it exists
+        try {
+          if (await FileSystem.exists(tempPath)) {
+            await FileSystem.deleteFile(tempPath);
+          }
+        } catch (cleanupError) {
+          // Ignore cleanup errors, but log them if logger is available
+          console.warn(`Failed to cleanup temp file ${tempPath}: ${cleanupError.message}`);
         }
-      } catch (cleanupError) {
-        // Ignore cleanup errors, but log them if logger is available
-        console.warn(`Failed to cleanup temp file ${tempPath}: ${cleanupError.message}`);
+
+        // If this is the last attempt, throw the error
+        if (attempt === maxRetries) {
+          throw new Error(`Atomic write failed after ${maxRetries} attempts: ${error.message}`);
+        }
+
+        // Wait before retrying (exponential backoff)
+        await new Promise(resolve => setTimeout(resolve, retryDelay * attempt));
       }
-      
-      throw new Error(`Atomic write failed: ${error.message}`);
     }
   }
 

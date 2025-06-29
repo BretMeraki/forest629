@@ -13,6 +13,11 @@ import { DataPersistence } from './modules/data-persistence.js';
 import { ProjectManagement } from './modules/project-management.js';
 import { TaskCompletion } from './modules/task-completion.js';
 
+if (!process.env.FOREST_DATA_DIR || !/test|tmp|demo/i.test(process.env.FOREST_DATA_DIR)) {
+  console.error('\u26a0\ufe0f  Refusing to run: FOREST_DATA_DIR is not set to a test/demo directory. Set FOREST_DATA_DIR to a safe, isolated path.');
+  process.exit(1);
+}
+
 (async () => {
   try {
     const blockId = process.argv[2] || 'debug-block-1';

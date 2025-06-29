@@ -1,0 +1,28 @@
+{
+  "id": "workflow-test",
+  "goal": "Learn React development",
+  "specific_interests": [
+    "React",
+    "JavaScript"
+  ],
+  "learning_paths": [
+    {
+      "path_name": "general",
+      "priority": "high"
+    }
+  ],
+  "context": "Beginner programmer wanting to build web apps",
+  "constraints": {},
+  "existing_credentials": [],
+  "current_habits": {},
+  "life_structure_preferences": {
+    "focus_duration": "30 minutes"
+  },
+  "urgency_level": "medium",
+  "success_metrics": [],
+  "created_at": "2025-06-29T02:43:48.053Z",
+  "knowledge_level": 1,
+  "skill_mappings": {},
+  "progress": 0,
+  "activePath": "general"
+}

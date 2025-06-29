@@ -1,0 +1,2459 @@
+{
+  "projectId": "workflow-test",
+  "pathName": "general",
+  "created": "2025-06-29T02:47:27.814Z",
+  "learningStyle": "mixed",
+  "focusAreas": [],
+  "goal": "Learn React development",
+  "context": "Beginner programmer wanting to build web apps",
+  "complexity": {
+    "score": 6,
+    "level": "moderate",
+    "recommended_depth": 3,
+    "main_branches": 6,
+    "sub_branches_per_main": 3,
+    "tasks_per_leaf": 11,
+    "estimated_tasks": 594,
+    "time_estimate": "11 weeks"
+  },
+  "strategicBranches": [
+    {
+      "id": "Foundation",
+      "title": "Foundation",
+      "order": 0
+    },
+    {
+      "id": "Research & Analysis",
+      "title": "Research & Analysis",
+      "order": 1
+    },
+    {
+      "id": "Capability Building",
+      "title": "Capability Building",
+      "order": 2
+    },
+    {
+      "id": "Planning & Design",
+      "title": "Planning & Design",
+      "order": 3
+    },
+    {
+      "id": "Implementation",
+      "title": "Implementation",
+      "order": 4
+    },
+    {
+      "id": "Validation & Optimization",
+      "title": "Validation & Optimization",
+      "order": 5
+    }
+  ],
+  "frontierNodes": [
+    {
+      "id": "foundation_task_1",
+      "title": "Research learn and react for foundation",
+      "description": "Core knowledge and fundamental understanding focused on: learn, react, development - Step 1 of 25",
+      "difficulty": 1,
+      "duration": "30 minutes",
+      "branch": "Foundation",
+      "prerequisites": [],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 1,
+      "contextual": true
+    },
+    {
+      "id": "foundation_task_2",
+      "title": "Plan learn and react for foundation",
+      "description": "Core knowledge and fundamental understanding focused on: learn, react, development - Step 2 of 25",
+      "difficulty": 1,
+      "duration": "30 minutes",
+      "branch": "Foundation",
+      "prerequisites": [
+        "foundation_task_1"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 2,
+      "contextual": true
+    },
+    {
+      "id": "foundation_task_3",
+      "title": "Develop learn and react for foundation",
+      "description": "Core knowledge and fundamental understanding focused on: learn, react, development - Step 3 of 25",
+      "difficulty": 1,
+      "duration": "30 minutes",
+      "branch": "Foundation",
+      "prerequisites": [
+        "foundation_task_2"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 3,
+      "contextual": true
+    },
+    {
+      "id": "foundation_task_4",
+      "title": "Implement learn and react for foundation",
+      "description": "Core knowledge and fundamental understanding focused on: learn, react, development - Step 4 of 25",
+      "difficulty": 1,
+      "duration": "30 minutes",
+      "branch": "Foundation",
+      "prerequisites": [
+        "foundation_task_3"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 4,
+      "contextual": true
+    },
+    {
+      "id": "foundation_task_5",
+      "title": "Validate learn and react for foundation",
+      "description": "Core knowledge and fundamental understanding focused on: learn, react, development - Step 5 of 25",
+      "difficulty": 1,
+      "duration": "30 minutes",
+      "branch": "Foundation",
+      "prerequisites": [
+        "foundation_task_4"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 5,
+      "contextual": true
+    },
+    {
+      "id": "foundation_task_6",
+      "title": "Optimize learn and react for foundation",
+      "description": "Core knowledge and fundamental understanding focused on: learn, react, development - Step 6 of 25",
+      "difficulty": 2,
+      "duration": "30 minutes",
+      "branch": "Foundation",
+      "prerequisites": [
+        "foundation_task_5"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 6,
+      "contextual": true
+    },
+    {
+      "id": "foundation_task_7",
+      "title": "Optimize learn and react for foundation",
+      "description": "Core knowledge and fundamental understanding focused on: learn, react, development - Step 7 of 25",
+      "difficulty": 2,
+      "duration": "30 minutes",
+      "branch": "Foundation",
+      "prerequisites": [
+        "foundation_task_6"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 7,
+      "contextual": true
+    },
+    {
+      "id": "foundation_task_8",
+      "title": "Optimize learn and react for foundation",
+      "description": "Core knowledge and fundamental understanding focused on: learn, react, development - Step 8 of 25",
+      "difficulty": 2,
+      "duration": "30 minutes",
+      "branch": "Foundation",
+      "prerequisites": [
+        "foundation_task_7"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 8,
+      "contextual": true
+    },
+    {
+      "id": "foundation_task_9",
+      "title": "Optimize learn and react for foundation",
+      "description": "Core knowledge and fundamental understanding focused on: learn, react, development - Step 9 of 25",
+      "difficulty": 2,
+      "duration": "30 minutes",
+      "branch": "Foundation",
+      "prerequisites": [
+        "foundation_task_8"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 9,
+      "contextual": true
+    },
+    {
+      "id": "foundation_task_10",
+      "title": "Optimize learn and react for foundation",
+      "description": "Core knowledge and fundamental understanding focused on: learn, react, development - Step 10 of 25",
+      "difficulty": 2,
+      "duration": "30 minutes",
+      "branch": "Foundation",
+      "prerequisites": [
+        "foundation_task_9"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 10,
+      "contextual": true
+    },
+    {
+      "id": "foundation_task_11",
+      "title": "Optimize learn and react for foundation",
+      "description": "Core knowledge and fundamental understanding focused on: learn, react, development - Step 11 of 25",
+      "difficulty": 3,
+      "duration": "45 minutes",
+      "branch": "Foundation",
+      "prerequisites": [
+        "foundation_task_10"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 11,
+      "contextual": true
+    },
+    {
+      "id": "foundation_task_12",
+      "title": "Optimize learn and react for foundation",
+      "description": "Core knowledge and fundamental understanding focused on: learn, react, development - Step 12 of 25",
+      "difficulty": 3,
+      "duration": "45 minutes",
+      "branch": "Foundation",
+      "prerequisites": [
+        "foundation_task_11"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 12,
+      "contextual": true
+    },
+    {
+      "id": "foundation_task_13",
+      "title": "Optimize learn and react for foundation",
+      "description": "Core knowledge and fundamental understanding focused on: learn, react, development - Step 13 of 25",
+      "difficulty": 3,
+      "duration": "45 minutes",
+      "branch": "Foundation",
+      "prerequisites": [
+        "foundation_task_12"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 13,
+      "contextual": true
+    },
+    {
+      "id": "foundation_task_14",
+      "title": "Optimize learn and react for foundation",
+      "description": "Core knowledge and fundamental understanding focused on: learn, react, development - Step 14 of 25",
+      "difficulty": 3,
+      "duration": "45 minutes",
+      "branch": "Foundation",
+      "prerequisites": [
+        "foundation_task_13"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 14,
+      "contextual": true
+    },
+    {
+      "id": "foundation_task_15",
+      "title": "Optimize learn and react for foundation",
+      "description": "Core knowledge and fundamental understanding focused on: learn, react, development - Step 15 of 25",
+      "difficulty": 3,
+      "duration": "45 minutes",
+      "branch": "Foundation",
+      "prerequisites": [
+        "foundation_task_14"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 15,
+      "contextual": true
+    },
+    {
+      "id": "foundation_task_16",
+      "title": "Optimize learn and react for foundation",
+      "description": "Core knowledge and fundamental understanding focused on: learn, react, development - Step 16 of 25",
+      "difficulty": 4,
+      "duration": "60 minutes",
+      "branch": "Foundation",
+      "prerequisites": [
+        "foundation_task_15"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 16,
+      "contextual": true
+    },
+    {
+      "id": "foundation_task_17",
+      "title": "Optimize learn and react for foundation",
+      "description": "Core knowledge and fundamental understanding focused on: learn, react, development - Step 17 of 25",
+      "difficulty": 4,
+      "duration": "60 minutes",
+      "branch": "Foundation",
+      "prerequisites": [
+        "foundation_task_16"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 17,
+      "contextual": true
+    },
+    {
+      "id": "foundation_task_18",
+      "title": "Optimize learn and react for foundation",
+      "description": "Core knowledge and fundamental understanding focused on: learn, react, development - Step 18 of 25",
+      "difficulty": 4,
+      "duration": "60 minutes",
+      "branch": "Foundation",
+      "prerequisites": [
+        "foundation_task_17"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 18,
+      "contextual": true
+    },
+    {
+      "id": "foundation_task_19",
+      "title": "Optimize learn and react for foundation",
+      "description": "Core knowledge and fundamental understanding focused on: learn, react, development - Step 19 of 25",
+      "difficulty": 4,
+      "duration": "60 minutes",
+      "branch": "Foundation",
+      "prerequisites": [
+        "foundation_task_18"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 19,
+      "contextual": true
+    },
+    {
+      "id": "foundation_task_20",
+      "title": "Optimize learn and react for foundation",
+      "description": "Core knowledge and fundamental understanding focused on: learn, react, development - Step 20 of 25",
+      "difficulty": 4,
+      "duration": "60 minutes",
+      "branch": "Foundation",
+      "prerequisites": [
+        "foundation_task_19"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 20,
+      "contextual": true
+    },
+    {
+      "id": "foundation_task_21",
+      "title": "Optimize learn and react for foundation",
+      "description": "Core knowledge and fundamental understanding focused on: learn, react, development - Step 21 of 25",
+      "difficulty": 5,
+      "duration": "90 minutes",
+      "branch": "Foundation",
+      "prerequisites": [
+        "foundation_task_20"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 21,
+      "contextual": true
+    },
+    {
+      "id": "foundation_task_22",
+      "title": "Optimize learn and react for foundation",
+      "description": "Core knowledge and fundamental understanding focused on: learn, react, development - Step 22 of 25",
+      "difficulty": 5,
+      "duration": "90 minutes",
+      "branch": "Foundation",
+      "prerequisites": [
+        "foundation_task_21"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 22,
+      "contextual": true
+    },
+    {
+      "id": "foundation_task_23",
+      "title": "Optimize learn and react for foundation",
+      "description": "Core knowledge and fundamental understanding focused on: learn, react, development - Step 23 of 25",
+      "difficulty": 5,
+      "duration": "90 minutes",
+      "branch": "Foundation",
+      "prerequisites": [
+        "foundation_task_22"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 23,
+      "contextual": true
+    },
+    {
+      "id": "foundation_task_24",
+      "title": "Optimize learn and react for foundation",
+      "description": "Core knowledge and fundamental understanding focused on: learn, react, development - Step 24 of 25",
+      "difficulty": 5,
+      "duration": "90 minutes",
+      "branch": "Foundation",
+      "prerequisites": [
+        "foundation_task_23"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 24,
+      "contextual": true
+    },
+    {
+      "id": "foundation_task_25",
+      "title": "Optimize learn and react for foundation",
+      "description": "Core knowledge and fundamental understanding focused on: learn, react, development - Step 25 of 25",
+      "difficulty": 5,
+      "duration": "90 minutes",
+      "branch": "Foundation",
+      "prerequisites": [
+        "foundation_task_24"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 25,
+      "contextual": true
+    },
+    {
+      "id": "research_analysis_task_1",
+      "title": "Research learn and react for research & analysis",
+      "description": "Information gathering and strategic planning focused on: learn, react, development - Step 1 of 25",
+      "difficulty": 1,
+      "duration": "30 minutes",
+      "branch": "Research & Analysis",
+      "prerequisites": [],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 101,
+      "contextual": true
+    },
+    {
+      "id": "research_analysis_task_2",
+      "title": "Plan learn and react for research & analysis",
+      "description": "Information gathering and strategic planning focused on: learn, react, development - Step 2 of 25",
+      "difficulty": 1,
+      "duration": "30 minutes",
+      "branch": "Research & Analysis",
+      "prerequisites": [
+        "research_analysis_task_1"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 102,
+      "contextual": true
+    },
+    {
+      "id": "research_analysis_task_3",
+      "title": "Develop learn and react for research & analysis",
+      "description": "Information gathering and strategic planning focused on: learn, react, development - Step 3 of 25",
+      "difficulty": 1,
+      "duration": "30 minutes",
+      "branch": "Research & Analysis",
+      "prerequisites": [
+        "research_analysis_task_2"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 103,
+      "contextual": true
+    },
+    {
+      "id": "research_analysis_task_4",
+      "title": "Implement learn and react for research & analysis",
+      "description": "Information gathering and strategic planning focused on: learn, react, development - Step 4 of 25",
+      "difficulty": 1,
+      "duration": "30 minutes",
+      "branch": "Research & Analysis",
+      "prerequisites": [
+        "research_analysis_task_3"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 104,
+      "contextual": true
+    },
+    {
+      "id": "research_analysis_task_5",
+      "title": "Validate learn and react for research & analysis",
+      "description": "Information gathering and strategic planning focused on: learn, react, development - Step 5 of 25",
+      "difficulty": 1,
+      "duration": "30 minutes",
+      "branch": "Research & Analysis",
+      "prerequisites": [
+        "research_analysis_task_4"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 105,
+      "contextual": true
+    },
+    {
+      "id": "research_analysis_task_6",
+      "title": "Optimize learn and react for research & analysis",
+      "description": "Information gathering and strategic planning focused on: learn, react, development - Step 6 of 25",
+      "difficulty": 2,
+      "duration": "30 minutes",
+      "branch": "Research & Analysis",
+      "prerequisites": [
+        "research_analysis_task_5"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 106,
+      "contextual": true
+    },
+    {
+      "id": "research_analysis_task_7",
+      "title": "Optimize learn and react for research & analysis",
+      "description": "Information gathering and strategic planning focused on: learn, react, development - Step 7 of 25",
+      "difficulty": 2,
+      "duration": "30 minutes",
+      "branch": "Research & Analysis",
+      "prerequisites": [
+        "research_analysis_task_6"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 107,
+      "contextual": true
+    },
+    {
+      "id": "research_analysis_task_8",
+      "title": "Optimize learn and react for research & analysis",
+      "description": "Information gathering and strategic planning focused on: learn, react, development - Step 8 of 25",
+      "difficulty": 2,
+      "duration": "30 minutes",
+      "branch": "Research & Analysis",
+      "prerequisites": [
+        "research_analysis_task_7"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 108,
+      "contextual": true
+    },
+    {
+      "id": "research_analysis_task_9",
+      "title": "Optimize learn and react for research & analysis",
+      "description": "Information gathering and strategic planning focused on: learn, react, development - Step 9 of 25",
+      "difficulty": 2,
+      "duration": "30 minutes",
+      "branch": "Research & Analysis",
+      "prerequisites": [
+        "research_analysis_task_8"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 109,
+      "contextual": true
+    },
+    {
+      "id": "research_analysis_task_10",
+      "title": "Optimize learn and react for research & analysis",
+      "description": "Information gathering and strategic planning focused on: learn, react, development - Step 10 of 25",
+      "difficulty": 2,
+      "duration": "30 minutes",
+      "branch": "Research & Analysis",
+      "prerequisites": [
+        "research_analysis_task_9"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 110,
+      "contextual": true
+    },
+    {
+      "id": "research_analysis_task_11",
+      "title": "Optimize learn and react for research & analysis",
+      "description": "Information gathering and strategic planning focused on: learn, react, development - Step 11 of 25",
+      "difficulty": 3,
+      "duration": "45 minutes",
+      "branch": "Research & Analysis",
+      "prerequisites": [
+        "research_analysis_task_10"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 111,
+      "contextual": true
+    },
+    {
+      "id": "research_analysis_task_12",
+      "title": "Optimize learn and react for research & analysis",
+      "description": "Information gathering and strategic planning focused on: learn, react, development - Step 12 of 25",
+      "difficulty": 3,
+      "duration": "45 minutes",
+      "branch": "Research & Analysis",
+      "prerequisites": [
+        "research_analysis_task_11"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 112,
+      "contextual": true
+    },
+    {
+      "id": "research_analysis_task_13",
+      "title": "Optimize learn and react for research & analysis",
+      "description": "Information gathering and strategic planning focused on: learn, react, development - Step 13 of 25",
+      "difficulty": 3,
+      "duration": "45 minutes",
+      "branch": "Research & Analysis",
+      "prerequisites": [
+        "research_analysis_task_12"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 113,
+      "contextual": true
+    },
+    {
+      "id": "research_analysis_task_14",
+      "title": "Optimize learn and react for research & analysis",
+      "description": "Information gathering and strategic planning focused on: learn, react, development - Step 14 of 25",
+      "difficulty": 3,
+      "duration": "45 minutes",
+      "branch": "Research & Analysis",
+      "prerequisites": [
+        "research_analysis_task_13"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 114,
+      "contextual": true
+    },
+    {
+      "id": "research_analysis_task_15",
+      "title": "Optimize learn and react for research & analysis",
+      "description": "Information gathering and strategic planning focused on: learn, react, development - Step 15 of 25",
+      "difficulty": 3,
+      "duration": "45 minutes",
+      "branch": "Research & Analysis",
+      "prerequisites": [
+        "research_analysis_task_14"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 115,
+      "contextual": true
+    },
+    {
+      "id": "research_analysis_task_16",
+      "title": "Optimize learn and react for research & analysis",
+      "description": "Information gathering and strategic planning focused on: learn, react, development - Step 16 of 25",
+      "difficulty": 4,
+      "duration": "60 minutes",
+      "branch": "Research & Analysis",
+      "prerequisites": [
+        "research_analysis_task_15"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 116,
+      "contextual": true
+    },
+    {
+      "id": "research_analysis_task_17",
+      "title": "Optimize learn and react for research & analysis",
+      "description": "Information gathering and strategic planning focused on: learn, react, development - Step 17 of 25",
+      "difficulty": 4,
+      "duration": "60 minutes",
+      "branch": "Research & Analysis",
+      "prerequisites": [
+        "research_analysis_task_16"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 117,
+      "contextual": true
+    },
+    {
+      "id": "research_analysis_task_18",
+      "title": "Optimize learn and react for research & analysis",
+      "description": "Information gathering and strategic planning focused on: learn, react, development - Step 18 of 25",
+      "difficulty": 4,
+      "duration": "60 minutes",
+      "branch": "Research & Analysis",
+      "prerequisites": [
+        "research_analysis_task_17"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 118,
+      "contextual": true
+    },
+    {
+      "id": "research_analysis_task_19",
+      "title": "Optimize learn and react for research & analysis",
+      "description": "Information gathering and strategic planning focused on: learn, react, development - Step 19 of 25",
+      "difficulty": 4,
+      "duration": "60 minutes",
+      "branch": "Research & Analysis",
+      "prerequisites": [
+        "research_analysis_task_18"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 119,
+      "contextual": true
+    },
+    {
+      "id": "research_analysis_task_20",
+      "title": "Optimize learn and react for research & analysis",
+      "description": "Information gathering and strategic planning focused on: learn, react, development - Step 20 of 25",
+      "difficulty": 4,
+      "duration": "60 minutes",
+      "branch": "Research & Analysis",
+      "prerequisites": [
+        "research_analysis_task_19"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 120,
+      "contextual": true
+    },
+    {
+      "id": "research_analysis_task_21",
+      "title": "Optimize learn and react for research & analysis",
+      "description": "Information gathering and strategic planning focused on: learn, react, development - Step 21 of 25",
+      "difficulty": 5,
+      "duration": "90 minutes",
+      "branch": "Research & Analysis",
+      "prerequisites": [
+        "research_analysis_task_20"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 121,
+      "contextual": true
+    },
+    {
+      "id": "research_analysis_task_22",
+      "title": "Optimize learn and react for research & analysis",
+      "description": "Information gathering and strategic planning focused on: learn, react, development - Step 22 of 25",
+      "difficulty": 5,
+      "duration": "90 minutes",
+      "branch": "Research & Analysis",
+      "prerequisites": [
+        "research_analysis_task_21"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 122,
+      "contextual": true
+    },
+    {
+      "id": "research_analysis_task_23",
+      "title": "Optimize learn and react for research & analysis",
+      "description": "Information gathering and strategic planning focused on: learn, react, development - Step 23 of 25",
+      "difficulty": 5,
+      "duration": "90 minutes",
+      "branch": "Research & Analysis",
+      "prerequisites": [
+        "research_analysis_task_22"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 123,
+      "contextual": true
+    },
+    {
+      "id": "research_analysis_task_24",
+      "title": "Optimize learn and react for research & analysis",
+      "description": "Information gathering and strategic planning focused on: learn, react, development - Step 24 of 25",
+      "difficulty": 5,
+      "duration": "90 minutes",
+      "branch": "Research & Analysis",
+      "prerequisites": [
+        "research_analysis_task_23"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 124,
+      "contextual": true
+    },
+    {
+      "id": "research_analysis_task_25",
+      "title": "Optimize learn and react for research & analysis",
+      "description": "Information gathering and strategic planning focused on: learn, react, development - Step 25 of 25",
+      "difficulty": 5,
+      "duration": "90 minutes",
+      "branch": "Research & Analysis",
+      "prerequisites": [
+        "research_analysis_task_24"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 125,
+      "contextual": true
+    },
+    {
+      "id": "capability_building_task_1",
+      "title": "Research learn and react for capability building",
+      "description": "Skills and resource development focused on: learn, react, development - Step 1 of 25",
+      "difficulty": 1,
+      "duration": "30 minutes",
+      "branch": "Capability Building",
+      "prerequisites": [],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 201,
+      "contextual": true
+    },
+    {
+      "id": "capability_building_task_2",
+      "title": "Plan learn and react for capability building",
+      "description": "Skills and resource development focused on: learn, react, development - Step 2 of 25",
+      "difficulty": 1,
+      "duration": "30 minutes",
+      "branch": "Capability Building",
+      "prerequisites": [
+        "capability_building_task_1"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 202,
+      "contextual": true
+    },
+    {
+      "id": "capability_building_task_3",
+      "title": "Develop learn and react for capability building",
+      "description": "Skills and resource development focused on: learn, react, development - Step 3 of 25",
+      "difficulty": 1,
+      "duration": "30 minutes",
+      "branch": "Capability Building",
+      "prerequisites": [
+        "capability_building_task_2"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 203,
+      "contextual": true
+    },
+    {
+      "id": "capability_building_task_4",
+      "title": "Implement learn and react for capability building",
+      "description": "Skills and resource development focused on: learn, react, development - Step 4 of 25",
+      "difficulty": 1,
+      "duration": "30 minutes",
+      "branch": "Capability Building",
+      "prerequisites": [
+        "capability_building_task_3"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 204,
+      "contextual": true
+    },
+    {
+      "id": "capability_building_task_5",
+      "title": "Validate learn and react for capability building",
+      "description": "Skills and resource development focused on: learn, react, development - Step 5 of 25",
+      "difficulty": 1,
+      "duration": "30 minutes",
+      "branch": "Capability Building",
+      "prerequisites": [
+        "capability_building_task_4"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 205,
+      "contextual": true
+    },
+    {
+      "id": "capability_building_task_6",
+      "title": "Optimize learn and react for capability building",
+      "description": "Skills and resource development focused on: learn, react, development - Step 6 of 25",
+      "difficulty": 2,
+      "duration": "30 minutes",
+      "branch": "Capability Building",
+      "prerequisites": [
+        "capability_building_task_5"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 206,
+      "contextual": true
+    },
+    {
+      "id": "capability_building_task_7",
+      "title": "Optimize learn and react for capability building",
+      "description": "Skills and resource development focused on: learn, react, development - Step 7 of 25",
+      "difficulty": 2,
+      "duration": "30 minutes",
+      "branch": "Capability Building",
+      "prerequisites": [
+        "capability_building_task_6"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 207,
+      "contextual": true
+    },
+    {
+      "id": "capability_building_task_8",
+      "title": "Optimize learn and react for capability building",
+      "description": "Skills and resource development focused on: learn, react, development - Step 8 of 25",
+      "difficulty": 2,
+      "duration": "30 minutes",
+      "branch": "Capability Building",
+      "prerequisites": [
+        "capability_building_task_7"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 208,
+      "contextual": true
+    },
+    {
+      "id": "capability_building_task_9",
+      "title": "Optimize learn and react for capability building",
+      "description": "Skills and resource development focused on: learn, react, development - Step 9 of 25",
+      "difficulty": 2,
+      "duration": "30 minutes",
+      "branch": "Capability Building",
+      "prerequisites": [
+        "capability_building_task_8"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 209,
+      "contextual": true
+    },
+    {
+      "id": "capability_building_task_10",
+      "title": "Optimize learn and react for capability building",
+      "description": "Skills and resource development focused on: learn, react, development - Step 10 of 25",
+      "difficulty": 2,
+      "duration": "30 minutes",
+      "branch": "Capability Building",
+      "prerequisites": [
+        "capability_building_task_9"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 210,
+      "contextual": true
+    },
+    {
+      "id": "capability_building_task_11",
+      "title": "Optimize learn and react for capability building",
+      "description": "Skills and resource development focused on: learn, react, development - Step 11 of 25",
+      "difficulty": 3,
+      "duration": "45 minutes",
+      "branch": "Capability Building",
+      "prerequisites": [
+        "capability_building_task_10"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 211,
+      "contextual": true
+    },
+    {
+      "id": "capability_building_task_12",
+      "title": "Optimize learn and react for capability building",
+      "description": "Skills and resource development focused on: learn, react, development - Step 12 of 25",
+      "difficulty": 3,
+      "duration": "45 minutes",
+      "branch": "Capability Building",
+      "prerequisites": [
+        "capability_building_task_11"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 212,
+      "contextual": true
+    },
+    {
+      "id": "capability_building_task_13",
+      "title": "Optimize learn and react for capability building",
+      "description": "Skills and resource development focused on: learn, react, development - Step 13 of 25",
+      "difficulty": 3,
+      "duration": "45 minutes",
+      "branch": "Capability Building",
+      "prerequisites": [
+        "capability_building_task_12"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 213,
+      "contextual": true
+    },
+    {
+      "id": "capability_building_task_14",
+      "title": "Optimize learn and react for capability building",
+      "description": "Skills and resource development focused on: learn, react, development - Step 14 of 25",
+      "difficulty": 3,
+      "duration": "45 minutes",
+      "branch": "Capability Building",
+      "prerequisites": [
+        "capability_building_task_13"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 214,
+      "contextual": true
+    },
+    {
+      "id": "capability_building_task_15",
+      "title": "Optimize learn and react for capability building",
+      "description": "Skills and resource development focused on: learn, react, development - Step 15 of 25",
+      "difficulty": 3,
+      "duration": "45 minutes",
+      "branch": "Capability Building",
+      "prerequisites": [
+        "capability_building_task_14"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 215,
+      "contextual": true
+    },
+    {
+      "id": "capability_building_task_16",
+      "title": "Optimize learn and react for capability building",
+      "description": "Skills and resource development focused on: learn, react, development - Step 16 of 25",
+      "difficulty": 4,
+      "duration": "60 minutes",
+      "branch": "Capability Building",
+      "prerequisites": [
+        "capability_building_task_15"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 216,
+      "contextual": true
+    },
+    {
+      "id": "capability_building_task_17",
+      "title": "Optimize learn and react for capability building",
+      "description": "Skills and resource development focused on: learn, react, development - Step 17 of 25",
+      "difficulty": 4,
+      "duration": "60 minutes",
+      "branch": "Capability Building",
+      "prerequisites": [
+        "capability_building_task_16"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 217,
+      "contextual": true
+    },
+    {
+      "id": "capability_building_task_18",
+      "title": "Optimize learn and react for capability building",
+      "description": "Skills and resource development focused on: learn, react, development - Step 18 of 25",
+      "difficulty": 4,
+      "duration": "60 minutes",
+      "branch": "Capability Building",
+      "prerequisites": [
+        "capability_building_task_17"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 218,
+      "contextual": true
+    },
+    {
+      "id": "capability_building_task_19",
+      "title": "Optimize learn and react for capability building",
+      "description": "Skills and resource development focused on: learn, react, development - Step 19 of 25",
+      "difficulty": 4,
+      "duration": "60 minutes",
+      "branch": "Capability Building",
+      "prerequisites": [
+        "capability_building_task_18"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 219,
+      "contextual": true
+    },
+    {
+      "id": "capability_building_task_20",
+      "title": "Optimize learn and react for capability building",
+      "description": "Skills and resource development focused on: learn, react, development - Step 20 of 25",
+      "difficulty": 4,
+      "duration": "60 minutes",
+      "branch": "Capability Building",
+      "prerequisites": [
+        "capability_building_task_19"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 220,
+      "contextual": true
+    },
+    {
+      "id": "capability_building_task_21",
+      "title": "Optimize learn and react for capability building",
+      "description": "Skills and resource development focused on: learn, react, development - Step 21 of 25",
+      "difficulty": 5,
+      "duration": "90 minutes",
+      "branch": "Capability Building",
+      "prerequisites": [
+        "capability_building_task_20"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 221,
+      "contextual": true
+    },
+    {
+      "id": "capability_building_task_22",
+      "title": "Optimize learn and react for capability building",
+      "description": "Skills and resource development focused on: learn, react, development - Step 22 of 25",
+      "difficulty": 5,
+      "duration": "90 minutes",
+      "branch": "Capability Building",
+      "prerequisites": [
+        "capability_building_task_21"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 222,
+      "contextual": true
+    },
+    {
+      "id": "capability_building_task_23",
+      "title": "Optimize learn and react for capability building",
+      "description": "Skills and resource development focused on: learn, react, development - Step 23 of 25",
+      "difficulty": 5,
+      "duration": "90 minutes",
+      "branch": "Capability Building",
+      "prerequisites": [
+        "capability_building_task_22"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 223,
+      "contextual": true
+    },
+    {
+      "id": "capability_building_task_24",
+      "title": "Optimize learn and react for capability building",
+      "description": "Skills and resource development focused on: learn, react, development - Step 24 of 25",
+      "difficulty": 5,
+      "duration": "90 minutes",
+      "branch": "Capability Building",
+      "prerequisites": [
+        "capability_building_task_23"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 224,
+      "contextual": true
+    },
+    {
+      "id": "capability_building_task_25",
+      "title": "Optimize learn and react for capability building",
+      "description": "Skills and resource development focused on: learn, react, development - Step 25 of 25",
+      "difficulty": 5,
+      "duration": "90 minutes",
+      "branch": "Capability Building",
+      "prerequisites": [
+        "capability_building_task_24"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 225,
+      "contextual": true
+    },
+    {
+      "id": "planning_design_task_1",
+      "title": "Research learn and react for planning & design",
+      "description": "Strategic planning and solution design focused on: learn, react, development - Step 1 of 25",
+      "difficulty": 1,
+      "duration": "30 minutes",
+      "branch": "Planning & Design",
+      "prerequisites": [],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 301,
+      "contextual": true
+    },
+    {
+      "id": "planning_design_task_2",
+      "title": "Plan learn and react for planning & design",
+      "description": "Strategic planning and solution design focused on: learn, react, development - Step 2 of 25",
+      "difficulty": 1,
+      "duration": "30 minutes",
+      "branch": "Planning & Design",
+      "prerequisites": [
+        "planning_design_task_1"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 302,
+      "contextual": true
+    },
+    {
+      "id": "planning_design_task_3",
+      "title": "Develop learn and react for planning & design",
+      "description": "Strategic planning and solution design focused on: learn, react, development - Step 3 of 25",
+      "difficulty": 1,
+      "duration": "30 minutes",
+      "branch": "Planning & Design",
+      "prerequisites": [
+        "planning_design_task_2"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 303,
+      "contextual": true
+    },
+    {
+      "id": "planning_design_task_4",
+      "title": "Implement learn and react for planning & design",
+      "description": "Strategic planning and solution design focused on: learn, react, development - Step 4 of 25",
+      "difficulty": 1,
+      "duration": "30 minutes",
+      "branch": "Planning & Design",
+      "prerequisites": [
+        "planning_design_task_3"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 304,
+      "contextual": true
+    },
+    {
+      "id": "planning_design_task_5",
+      "title": "Validate learn and react for planning & design",
+      "description": "Strategic planning and solution design focused on: learn, react, development - Step 5 of 25",
+      "difficulty": 1,
+      "duration": "30 minutes",
+      "branch": "Planning & Design",
+      "prerequisites": [
+        "planning_design_task_4"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 305,
+      "contextual": true
+    },
+    {
+      "id": "planning_design_task_6",
+      "title": "Optimize learn and react for planning & design",
+      "description": "Strategic planning and solution design focused on: learn, react, development - Step 6 of 25",
+      "difficulty": 2,
+      "duration": "30 minutes",
+      "branch": "Planning & Design",
+      "prerequisites": [
+        "planning_design_task_5"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 306,
+      "contextual": true
+    },
+    {
+      "id": "planning_design_task_7",
+      "title": "Optimize learn and react for planning & design",
+      "description": "Strategic planning and solution design focused on: learn, react, development - Step 7 of 25",
+      "difficulty": 2,
+      "duration": "30 minutes",
+      "branch": "Planning & Design",
+      "prerequisites": [
+        "planning_design_task_6"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 307,
+      "contextual": true
+    },
+    {
+      "id": "planning_design_task_8",
+      "title": "Optimize learn and react for planning & design",
+      "description": "Strategic planning and solution design focused on: learn, react, development - Step 8 of 25",
+      "difficulty": 2,
+      "duration": "30 minutes",
+      "branch": "Planning & Design",
+      "prerequisites": [
+        "planning_design_task_7"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 308,
+      "contextual": true
+    },
+    {
+      "id": "planning_design_task_9",
+      "title": "Optimize learn and react for planning & design",
+      "description": "Strategic planning and solution design focused on: learn, react, development - Step 9 of 25",
+      "difficulty": 2,
+      "duration": "30 minutes",
+      "branch": "Planning & Design",
+      "prerequisites": [
+        "planning_design_task_8"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 309,
+      "contextual": true
+    },
+    {
+      "id": "planning_design_task_10",
+      "title": "Optimize learn and react for planning & design",
+      "description": "Strategic planning and solution design focused on: learn, react, development - Step 10 of 25",
+      "difficulty": 2,
+      "duration": "30 minutes",
+      "branch": "Planning & Design",
+      "prerequisites": [
+        "planning_design_task_9"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 310,
+      "contextual": true
+    },
+    {
+      "id": "planning_design_task_11",
+      "title": "Optimize learn and react for planning & design",
+      "description": "Strategic planning and solution design focused on: learn, react, development - Step 11 of 25",
+      "difficulty": 3,
+      "duration": "45 minutes",
+      "branch": "Planning & Design",
+      "prerequisites": [
+        "planning_design_task_10"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 311,
+      "contextual": true
+    },
+    {
+      "id": "planning_design_task_12",
+      "title": "Optimize learn and react for planning & design",
+      "description": "Strategic planning and solution design focused on: learn, react, development - Step 12 of 25",
+      "difficulty": 3,
+      "duration": "45 minutes",
+      "branch": "Planning & Design",
+      "prerequisites": [
+        "planning_design_task_11"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 312,
+      "contextual": true
+    },
+    {
+      "id": "planning_design_task_13",
+      "title": "Optimize learn and react for planning & design",
+      "description": "Strategic planning and solution design focused on: learn, react, development - Step 13 of 25",
+      "difficulty": 3,
+      "duration": "45 minutes",
+      "branch": "Planning & Design",
+      "prerequisites": [
+        "planning_design_task_12"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 313,
+      "contextual": true
+    },
+    {
+      "id": "planning_design_task_14",
+      "title": "Optimize learn and react for planning & design",
+      "description": "Strategic planning and solution design focused on: learn, react, development - Step 14 of 25",
+      "difficulty": 3,
+      "duration": "45 minutes",
+      "branch": "Planning & Design",
+      "prerequisites": [
+        "planning_design_task_13"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 314,
+      "contextual": true
+    },
+    {
+      "id": "planning_design_task_15",
+      "title": "Optimize learn and react for planning & design",
+      "description": "Strategic planning and solution design focused on: learn, react, development - Step 15 of 25",
+      "difficulty": 3,
+      "duration": "45 minutes",
+      "branch": "Planning & Design",
+      "prerequisites": [
+        "planning_design_task_14"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 315,
+      "contextual": true
+    },
+    {
+      "id": "planning_design_task_16",
+      "title": "Optimize learn and react for planning & design",
+      "description": "Strategic planning and solution design focused on: learn, react, development - Step 16 of 25",
+      "difficulty": 4,
+      "duration": "60 minutes",
+      "branch": "Planning & Design",
+      "prerequisites": [
+        "planning_design_task_15"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 316,
+      "contextual": true
+    },
+    {
+      "id": "planning_design_task_17",
+      "title": "Optimize learn and react for planning & design",
+      "description": "Strategic planning and solution design focused on: learn, react, development - Step 17 of 25",
+      "difficulty": 4,
+      "duration": "60 minutes",
+      "branch": "Planning & Design",
+      "prerequisites": [
+        "planning_design_task_16"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 317,
+      "contextual": true
+    },
+    {
+      "id": "planning_design_task_18",
+      "title": "Optimize learn and react for planning & design",
+      "description": "Strategic planning and solution design focused on: learn, react, development - Step 18 of 25",
+      "difficulty": 4,
+      "duration": "60 minutes",
+      "branch": "Planning & Design",
+      "prerequisites": [
+        "planning_design_task_17"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 318,
+      "contextual": true
+    },
+    {
+      "id": "planning_design_task_19",
+      "title": "Optimize learn and react for planning & design",
+      "description": "Strategic planning and solution design focused on: learn, react, development - Step 19 of 25",
+      "difficulty": 4,
+      "duration": "60 minutes",
+      "branch": "Planning & Design",
+      "prerequisites": [
+        "planning_design_task_18"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 319,
+      "contextual": true
+    },
+    {
+      "id": "planning_design_task_20",
+      "title": "Optimize learn and react for planning & design",
+      "description": "Strategic planning and solution design focused on: learn, react, development - Step 20 of 25",
+      "difficulty": 4,
+      "duration": "60 minutes",
+      "branch": "Planning & Design",
+      "prerequisites": [
+        "planning_design_task_19"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 320,
+      "contextual": true
+    },
+    {
+      "id": "planning_design_task_21",
+      "title": "Optimize learn and react for planning & design",
+      "description": "Strategic planning and solution design focused on: learn, react, development - Step 21 of 25",
+      "difficulty": 5,
+      "duration": "90 minutes",
+      "branch": "Planning & Design",
+      "prerequisites": [
+        "planning_design_task_20"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 321,
+      "contextual": true
+    },
+    {
+      "id": "planning_design_task_22",
+      "title": "Optimize learn and react for planning & design",
+      "description": "Strategic planning and solution design focused on: learn, react, development - Step 22 of 25",
+      "difficulty": 5,
+      "duration": "90 minutes",
+      "branch": "Planning & Design",
+      "prerequisites": [
+        "planning_design_task_21"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 322,
+      "contextual": true
+    },
+    {
+      "id": "planning_design_task_23",
+      "title": "Optimize learn and react for planning & design",
+      "description": "Strategic planning and solution design focused on: learn, react, development - Step 23 of 25",
+      "difficulty": 5,
+      "duration": "90 minutes",
+      "branch": "Planning & Design",
+      "prerequisites": [
+        "planning_design_task_22"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 323,
+      "contextual": true
+    },
+    {
+      "id": "planning_design_task_24",
+      "title": "Optimize learn and react for planning & design",
+      "description": "Strategic planning and solution design focused on: learn, react, development - Step 24 of 25",
+      "difficulty": 5,
+      "duration": "90 minutes",
+      "branch": "Planning & Design",
+      "prerequisites": [
+        "planning_design_task_23"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 324,
+      "contextual": true
+    },
+    {
+      "id": "planning_design_task_25",
+      "title": "Optimize learn and react for planning & design",
+      "description": "Strategic planning and solution design focused on: learn, react, development - Step 25 of 25",
+      "difficulty": 5,
+      "duration": "90 minutes",
+      "branch": "Planning & Design",
+      "prerequisites": [
+        "planning_design_task_24"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 325,
+      "contextual": true
+    },
+    {
+      "id": "implementation_task_1",
+      "title": "Research learn and react for implementation",
+      "description": "Active execution and progress tracking focused on: learn, react, development - Step 1 of 25",
+      "difficulty": 1,
+      "duration": "30 minutes",
+      "branch": "Implementation",
+      "prerequisites": [],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 401,
+      "contextual": true
+    },
+    {
+      "id": "implementation_task_2",
+      "title": "Plan learn and react for implementation",
+      "description": "Active execution and progress tracking focused on: learn, react, development - Step 2 of 25",
+      "difficulty": 1,
+      "duration": "30 minutes",
+      "branch": "Implementation",
+      "prerequisites": [
+        "implementation_task_1"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 402,
+      "contextual": true
+    },
+    {
+      "id": "implementation_task_3",
+      "title": "Develop learn and react for implementation",
+      "description": "Active execution and progress tracking focused on: learn, react, development - Step 3 of 25",
+      "difficulty": 1,
+      "duration": "30 minutes",
+      "branch": "Implementation",
+      "prerequisites": [
+        "implementation_task_2"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 403,
+      "contextual": true
+    },
+    {
+      "id": "implementation_task_4",
+      "title": "Implement learn and react for implementation",
+      "description": "Active execution and progress tracking focused on: learn, react, development - Step 4 of 25",
+      "difficulty": 1,
+      "duration": "30 minutes",
+      "branch": "Implementation",
+      "prerequisites": [
+        "implementation_task_3"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 404,
+      "contextual": true
+    },
+    {
+      "id": "implementation_task_5",
+      "title": "Validate learn and react for implementation",
+      "description": "Active execution and progress tracking focused on: learn, react, development - Step 5 of 25",
+      "difficulty": 1,
+      "duration": "30 minutes",
+      "branch": "Implementation",
+      "prerequisites": [
+        "implementation_task_4"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 405,
+      "contextual": true
+    },
+    {
+      "id": "implementation_task_6",
+      "title": "Optimize learn and react for implementation",
+      "description": "Active execution and progress tracking focused on: learn, react, development - Step 6 of 25",
+      "difficulty": 2,
+      "duration": "30 minutes",
+      "branch": "Implementation",
+      "prerequisites": [
+        "implementation_task_5"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 406,
+      "contextual": true
+    },
+    {
+      "id": "implementation_task_7",
+      "title": "Optimize learn and react for implementation",
+      "description": "Active execution and progress tracking focused on: learn, react, development - Step 7 of 25",
+      "difficulty": 2,
+      "duration": "30 minutes",
+      "branch": "Implementation",
+      "prerequisites": [
+        "implementation_task_6"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 407,
+      "contextual": true
+    },
+    {
+      "id": "implementation_task_8",
+      "title": "Optimize learn and react for implementation",
+      "description": "Active execution and progress tracking focused on: learn, react, development - Step 8 of 25",
+      "difficulty": 2,
+      "duration": "30 minutes",
+      "branch": "Implementation",
+      "prerequisites": [
+        "implementation_task_7"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 408,
+      "contextual": true
+    },
+    {
+      "id": "implementation_task_9",
+      "title": "Optimize learn and react for implementation",
+      "description": "Active execution and progress tracking focused on: learn, react, development - Step 9 of 25",
+      "difficulty": 2,
+      "duration": "30 minutes",
+      "branch": "Implementation",
+      "prerequisites": [
+        "implementation_task_8"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 409,
+      "contextual": true
+    },
+    {
+      "id": "implementation_task_10",
+      "title": "Optimize learn and react for implementation",
+      "description": "Active execution and progress tracking focused on: learn, react, development - Step 10 of 25",
+      "difficulty": 2,
+      "duration": "30 minutes",
+      "branch": "Implementation",
+      "prerequisites": [
+        "implementation_task_9"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 410,
+      "contextual": true
+    },
+    {
+      "id": "implementation_task_11",
+      "title": "Optimize learn and react for implementation",
+      "description": "Active execution and progress tracking focused on: learn, react, development - Step 11 of 25",
+      "difficulty": 3,
+      "duration": "45 minutes",
+      "branch": "Implementation",
+      "prerequisites": [
+        "implementation_task_10"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 411,
+      "contextual": true
+    },
+    {
+      "id": "implementation_task_12",
+      "title": "Optimize learn and react for implementation",
+      "description": "Active execution and progress tracking focused on: learn, react, development - Step 12 of 25",
+      "difficulty": 3,
+      "duration": "45 minutes",
+      "branch": "Implementation",
+      "prerequisites": [
+        "implementation_task_11"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 412,
+      "contextual": true
+    },
+    {
+      "id": "implementation_task_13",
+      "title": "Optimize learn and react for implementation",
+      "description": "Active execution and progress tracking focused on: learn, react, development - Step 13 of 25",
+      "difficulty": 3,
+      "duration": "45 minutes",
+      "branch": "Implementation",
+      "prerequisites": [
+        "implementation_task_12"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 413,
+      "contextual": true
+    },
+    {
+      "id": "implementation_task_14",
+      "title": "Optimize learn and react for implementation",
+      "description": "Active execution and progress tracking focused on: learn, react, development - Step 14 of 25",
+      "difficulty": 3,
+      "duration": "45 minutes",
+      "branch": "Implementation",
+      "prerequisites": [
+        "implementation_task_13"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 414,
+      "contextual": true
+    },
+    {
+      "id": "implementation_task_15",
+      "title": "Optimize learn and react for implementation",
+      "description": "Active execution and progress tracking focused on: learn, react, development - Step 15 of 25",
+      "difficulty": 3,
+      "duration": "45 minutes",
+      "branch": "Implementation",
+      "prerequisites": [
+        "implementation_task_14"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 415,
+      "contextual": true
+    },
+    {
+      "id": "implementation_task_16",
+      "title": "Optimize learn and react for implementation",
+      "description": "Active execution and progress tracking focused on: learn, react, development - Step 16 of 25",
+      "difficulty": 4,
+      "duration": "60 minutes",
+      "branch": "Implementation",
+      "prerequisites": [
+        "implementation_task_15"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 416,
+      "contextual": true
+    },
+    {
+      "id": "implementation_task_17",
+      "title": "Optimize learn and react for implementation",
+      "description": "Active execution and progress tracking focused on: learn, react, development - Step 17 of 25",
+      "difficulty": 4,
+      "duration": "60 minutes",
+      "branch": "Implementation",
+      "prerequisites": [
+        "implementation_task_16"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 417,
+      "contextual": true
+    },
+    {
+      "id": "implementation_task_18",
+      "title": "Optimize learn and react for implementation",
+      "description": "Active execution and progress tracking focused on: learn, react, development - Step 18 of 25",
+      "difficulty": 4,
+      "duration": "60 minutes",
+      "branch": "Implementation",
+      "prerequisites": [
+        "implementation_task_17"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 418,
+      "contextual": true
+    },
+    {
+      "id": "implementation_task_19",
+      "title": "Optimize learn and react for implementation",
+      "description": "Active execution and progress tracking focused on: learn, react, development - Step 19 of 25",
+      "difficulty": 4,
+      "duration": "60 minutes",
+      "branch": "Implementation",
+      "prerequisites": [
+        "implementation_task_18"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 419,
+      "contextual": true
+    },
+    {
+      "id": "implementation_task_20",
+      "title": "Optimize learn and react for implementation",
+      "description": "Active execution and progress tracking focused on: learn, react, development - Step 20 of 25",
+      "difficulty": 4,
+      "duration": "60 minutes",
+      "branch": "Implementation",
+      "prerequisites": [
+        "implementation_task_19"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 420,
+      "contextual": true
+    },
+    {
+      "id": "implementation_task_21",
+      "title": "Optimize learn and react for implementation",
+      "description": "Active execution and progress tracking focused on: learn, react, development - Step 21 of 25",
+      "difficulty": 5,
+      "duration": "90 minutes",
+      "branch": "Implementation",
+      "prerequisites": [
+        "implementation_task_20"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 421,
+      "contextual": true
+    },
+    {
+      "id": "implementation_task_22",
+      "title": "Optimize learn and react for implementation",
+      "description": "Active execution and progress tracking focused on: learn, react, development - Step 22 of 25",
+      "difficulty": 5,
+      "duration": "90 minutes",
+      "branch": "Implementation",
+      "prerequisites": [
+        "implementation_task_21"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 422,
+      "contextual": true
+    },
+    {
+      "id": "implementation_task_23",
+      "title": "Optimize learn and react for implementation",
+      "description": "Active execution and progress tracking focused on: learn, react, development - Step 23 of 25",
+      "difficulty": 5,
+      "duration": "90 minutes",
+      "branch": "Implementation",
+      "prerequisites": [
+        "implementation_task_22"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 423,
+      "contextual": true
+    },
+    {
+      "id": "implementation_task_24",
+      "title": "Optimize learn and react for implementation",
+      "description": "Active execution and progress tracking focused on: learn, react, development - Step 24 of 25",
+      "difficulty": 5,
+      "duration": "90 minutes",
+      "branch": "Implementation",
+      "prerequisites": [
+        "implementation_task_23"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 424,
+      "contextual": true
+    },
+    {
+      "id": "implementation_task_25",
+      "title": "Optimize learn and react for implementation",
+      "description": "Active execution and progress tracking focused on: learn, react, development - Step 25 of 25",
+      "difficulty": 5,
+      "duration": "90 minutes",
+      "branch": "Implementation",
+      "prerequisites": [
+        "implementation_task_24"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 425,
+      "contextual": true
+    },
+    {
+      "id": "validation_optimization_task_1",
+      "title": "Research learn and react for validation & optimization",
+      "description": "Testing, refinement, and performance improvement focused on: learn, react, development - Step 1 of 25",
+      "difficulty": 1,
+      "duration": "30 minutes",
+      "branch": "Validation & Optimization",
+      "prerequisites": [],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 501,
+      "contextual": true
+    },
+    {
+      "id": "validation_optimization_task_2",
+      "title": "Plan learn and react for validation & optimization",
+      "description": "Testing, refinement, and performance improvement focused on: learn, react, development - Step 2 of 25",
+      "difficulty": 1,
+      "duration": "30 minutes",
+      "branch": "Validation & Optimization",
+      "prerequisites": [
+        "validation_optimization_task_1"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 502,
+      "contextual": true
+    },
+    {
+      "id": "validation_optimization_task_3",
+      "title": "Develop learn and react for validation & optimization",
+      "description": "Testing, refinement, and performance improvement focused on: learn, react, development - Step 3 of 25",
+      "difficulty": 1,
+      "duration": "30 minutes",
+      "branch": "Validation & Optimization",
+      "prerequisites": [
+        "validation_optimization_task_2"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 503,
+      "contextual": true
+    },
+    {
+      "id": "validation_optimization_task_4",
+      "title": "Implement learn and react for validation & optimization",
+      "description": "Testing, refinement, and performance improvement focused on: learn, react, development - Step 4 of 25",
+      "difficulty": 1,
+      "duration": "30 minutes",
+      "branch": "Validation & Optimization",
+      "prerequisites": [
+        "validation_optimization_task_3"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 504,
+      "contextual": true
+    },
+    {
+      "id": "validation_optimization_task_5",
+      "title": "Validate learn and react for validation & optimization",
+      "description": "Testing, refinement, and performance improvement focused on: learn, react, development - Step 5 of 25",
+      "difficulty": 1,
+      "duration": "30 minutes",
+      "branch": "Validation & Optimization",
+      "prerequisites": [
+        "validation_optimization_task_4"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 505,
+      "contextual": true
+    },
+    {
+      "id": "validation_optimization_task_6",
+      "title": "Optimize learn and react for validation & optimization",
+      "description": "Testing, refinement, and performance improvement focused on: learn, react, development - Step 6 of 25",
+      "difficulty": 2,
+      "duration": "30 minutes",
+      "branch": "Validation & Optimization",
+      "prerequisites": [
+        "validation_optimization_task_5"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 506,
+      "contextual": true
+    },
+    {
+      "id": "validation_optimization_task_7",
+      "title": "Optimize learn and react for validation & optimization",
+      "description": "Testing, refinement, and performance improvement focused on: learn, react, development - Step 7 of 25",
+      "difficulty": 2,
+      "duration": "30 minutes",
+      "branch": "Validation & Optimization",
+      "prerequisites": [
+        "validation_optimization_task_6"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 507,
+      "contextual": true
+    },
+    {
+      "id": "validation_optimization_task_8",
+      "title": "Optimize learn and react for validation & optimization",
+      "description": "Testing, refinement, and performance improvement focused on: learn, react, development - Step 8 of 25",
+      "difficulty": 2,
+      "duration": "30 minutes",
+      "branch": "Validation & Optimization",
+      "prerequisites": [
+        "validation_optimization_task_7"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 1,
+      "priority": 508,
+      "contextual": true
+    },
+    {
+      "id": "validation_optimization_task_9",
+      "title": "Optimize learn and react for validation & optimization",
+      "description": "Testing, refinement, and performance improvement focused on: learn, react, development - Step 9 of 25",
+      "difficulty": 2,
+      "duration": "30 minutes",
+      "branch": "Validation & Optimization",
+      "prerequisites": [
+        "validation_optimization_task_8"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 509,
+      "contextual": true
+    },
+    {
+      "id": "validation_optimization_task_10",
+      "title": "Optimize learn and react for validation & optimization",
+      "description": "Testing, refinement, and performance improvement focused on: learn, react, development - Step 10 of 25",
+      "difficulty": 2,
+      "duration": "30 minutes",
+      "branch": "Validation & Optimization",
+      "prerequisites": [
+        "validation_optimization_task_9"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 510,
+      "contextual": true
+    },
+    {
+      "id": "validation_optimization_task_11",
+      "title": "Optimize learn and react for validation & optimization",
+      "description": "Testing, refinement, and performance improvement focused on: learn, react, development - Step 11 of 25",
+      "difficulty": 3,
+      "duration": "45 minutes",
+      "branch": "Validation & Optimization",
+      "prerequisites": [
+        "validation_optimization_task_10"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 511,
+      "contextual": true
+    },
+    {
+      "id": "validation_optimization_task_12",
+      "title": "Optimize learn and react for validation & optimization",
+      "description": "Testing, refinement, and performance improvement focused on: learn, react, development - Step 12 of 25",
+      "difficulty": 3,
+      "duration": "45 minutes",
+      "branch": "Validation & Optimization",
+      "prerequisites": [
+        "validation_optimization_task_11"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 512,
+      "contextual": true
+    },
+    {
+      "id": "validation_optimization_task_13",
+      "title": "Optimize learn and react for validation & optimization",
+      "description": "Testing, refinement, and performance improvement focused on: learn, react, development - Step 13 of 25",
+      "difficulty": 3,
+      "duration": "45 minutes",
+      "branch": "Validation & Optimization",
+      "prerequisites": [
+        "validation_optimization_task_12"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 513,
+      "contextual": true
+    },
+    {
+      "id": "validation_optimization_task_14",
+      "title": "Optimize learn and react for validation & optimization",
+      "description": "Testing, refinement, and performance improvement focused on: learn, react, development - Step 14 of 25",
+      "difficulty": 3,
+      "duration": "45 minutes",
+      "branch": "Validation & Optimization",
+      "prerequisites": [
+        "validation_optimization_task_13"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 514,
+      "contextual": true
+    },
+    {
+      "id": "validation_optimization_task_15",
+      "title": "Optimize learn and react for validation & optimization",
+      "description": "Testing, refinement, and performance improvement focused on: learn, react, development - Step 15 of 25",
+      "difficulty": 3,
+      "duration": "45 minutes",
+      "branch": "Validation & Optimization",
+      "prerequisites": [
+        "validation_optimization_task_14"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 515,
+      "contextual": true
+    },
+    {
+      "id": "validation_optimization_task_16",
+      "title": "Optimize learn and react for validation & optimization",
+      "description": "Testing, refinement, and performance improvement focused on: learn, react, development - Step 16 of 25",
+      "difficulty": 4,
+      "duration": "60 minutes",
+      "branch": "Validation & Optimization",
+      "prerequisites": [
+        "validation_optimization_task_15"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 2,
+      "priority": 516,
+      "contextual": true
+    },
+    {
+      "id": "validation_optimization_task_17",
+      "title": "Optimize learn and react for validation & optimization",
+      "description": "Testing, refinement, and performance improvement focused on: learn, react, development - Step 17 of 25",
+      "difficulty": 4,
+      "duration": "60 minutes",
+      "branch": "Validation & Optimization",
+      "prerequisites": [
+        "validation_optimization_task_16"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 517,
+      "contextual": true
+    },
+    {
+      "id": "validation_optimization_task_18",
+      "title": "Optimize learn and react for validation & optimization",
+      "description": "Testing, refinement, and performance improvement focused on: learn, react, development - Step 18 of 25",
+      "difficulty": 4,
+      "duration": "60 minutes",
+      "branch": "Validation & Optimization",
+      "prerequisites": [
+        "validation_optimization_task_17"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 518,
+      "contextual": true
+    },
+    {
+      "id": "validation_optimization_task_19",
+      "title": "Optimize learn and react for validation & optimization",
+      "description": "Testing, refinement, and performance improvement focused on: learn, react, development - Step 19 of 25",
+      "difficulty": 4,
+      "duration": "60 minutes",
+      "branch": "Validation & Optimization",
+      "prerequisites": [
+        "validation_optimization_task_18"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 519,
+      "contextual": true
+    },
+    {
+      "id": "validation_optimization_task_20",
+      "title": "Optimize learn and react for validation & optimization",
+      "description": "Testing, refinement, and performance improvement focused on: learn, react, development - Step 20 of 25",
+      "difficulty": 4,
+      "duration": "60 minutes",
+      "branch": "Validation & Optimization",
+      "prerequisites": [
+        "validation_optimization_task_19"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 520,
+      "contextual": true
+    },
+    {
+      "id": "validation_optimization_task_21",
+      "title": "Optimize learn and react for validation & optimization",
+      "description": "Testing, refinement, and performance improvement focused on: learn, react, development - Step 21 of 25",
+      "difficulty": 5,
+      "duration": "90 minutes",
+      "branch": "Validation & Optimization",
+      "prerequisites": [
+        "validation_optimization_task_20"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 521,
+      "contextual": true
+    },
+    {
+      "id": "validation_optimization_task_22",
+      "title": "Optimize learn and react for validation & optimization",
+      "description": "Testing, refinement, and performance improvement focused on: learn, react, development - Step 22 of 25",
+      "difficulty": 5,
+      "duration": "90 minutes",
+      "branch": "Validation & Optimization",
+      "prerequisites": [
+        "validation_optimization_task_21"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 522,
+      "contextual": true
+    },
+    {
+      "id": "validation_optimization_task_23",
+      "title": "Optimize learn and react for validation & optimization",
+      "description": "Testing, refinement, and performance improvement focused on: learn, react, development - Step 23 of 25",
+      "difficulty": 5,
+      "duration": "90 minutes",
+      "branch": "Validation & Optimization",
+      "prerequisites": [
+        "validation_optimization_task_22"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 523,
+      "contextual": true
+    },
+    {
+      "id": "validation_optimization_task_24",
+      "title": "Optimize learn and react for validation & optimization",
+      "description": "Testing, refinement, and performance improvement focused on: learn, react, development - Step 24 of 25",
+      "difficulty": 5,
+      "duration": "90 minutes",
+      "branch": "Validation & Optimization",
+      "prerequisites": [
+        "validation_optimization_task_23"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 524,
+      "contextual": true
+    },
+    {
+      "id": "validation_optimization_task_25",
+      "title": "Optimize learn and react for validation & optimization",
+      "description": "Testing, refinement, and performance improvement focused on: learn, react, development - Step 25 of 25",
+      "difficulty": 5,
+      "duration": "90 minutes",
+      "branch": "Validation & Optimization",
+      "prerequisites": [
+        "validation_optimization_task_24"
+      ],
+      "completed": false,
+      "generated": true,
+      "phase": 3,
+      "priority": 525,
+      "contextual": true
+    }
+  ],
+  "completedNodes": [],
+  "collaborative_sessions": [],
+  "hierarchyMetadata": {
+    "total_depth": 3,
+    "total_branches": 0,
+    "total_sub_branches": 0,
+    "total_tasks": 150,
+    "branch_task_distribution": {}
+  },
+  "generation_context": {
+    "method": "deep_hierarchical_ai",
+    "timestamp": "2025-06-29T02:47:27.814Z",
+    "goal": "Learn React development",
+    "complexity_score": 6,
+    "awaiting_generation": false
+  },
+  "lastUpdated": "2025-06-29T02:47:27.818Z",
+  "dataVersion": "2.0"
+}

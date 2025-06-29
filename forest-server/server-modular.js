@@ -1,3 +1,26 @@
+
+// STARTUP_VALIDATION_HOOK: Validate fixes on startup
+async function validateStartupFixes() {
+  console.log('🔍 Validating startup fixes...');
+  
+  // Check HTA Bridge fix
+  const htaBridgePath = './modules/hta-bridge.js';
+  try {
+    const htaContent = await import('fs').then(fs => fs.promises.readFile(htaBridgePath, 'utf8'));
+    if (!htaContent.includes('PERMANENT_SCHEMA_FIX_INSTALLED')) {
+      console.error('❌ CRITICAL: HTA Bridge permanent fix missing!');
+      process.exit(1);
+    }
+    console.log('✅ HTA Bridge fix validated');
+  } catch (error) {
+    console.error('❌ CRITICAL: Cannot validate HTA Bridge fix:', error.message);
+    process.exit(1);
+  }
+}
+
+// Call validation before server initialization
+await validateStartupFixes();
+
 #!/usr/bin/env node
 // @ts-check
 // @ts-nocheck
@@ -8,6 +31,7 @@ import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
 
 // SIMPLIFIED STARTUP - Single predictable sequence  
 // No complex mode detection, no console redirection
@@ -3722,7 +3746,7 @@ async function main() {
     return;
   }
 
-  const topLevelLogger = await getForestLogger({ module: 'MAIN' });
+  topLevelLogger = await getForestLogger({ module: 'MAIN' });
   const startTime = Date.now();
 
   // Add comprehensive debugging with timestamps
@@ -3938,7 +3962,64 @@ async function main() {
 
 // Always call main() when this script is run directly
 // This ensures MCP server starts regardless of how it's invoked
-main();
-
+if (import.meta.url === `file://${process.argv[1]}` || import.meta.url === `file://${process.cwd()}/${process.argv[1]}`) {
+  main();
+}
 // For testing purposes, we export the server class
 export { CleanForestServer, main };
+
+// === SINGLE INSTANCE LOCK FILE ===
+const lockFilePath = path.resolve('.forest-server.lock');
+function isProcessAlive(pid) {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+if (fs.existsSync(lockFilePath)) {
+  const pid = parseInt(fs.readFileSync(lockFilePath, 'utf8'), 10);
+  if (!isNaN(pid) && isProcessAlive(pid) && pid !== process.pid) {
+    const msg = '❌ Forest server is already running (PID ' + pid + '). Exiting.';
+    console.error(msg);
+    if (process.env.NODE_ENV === 'test' || process.env.JEST_WORKER_ID) {
+      throw new Error(msg);
+    } else {
+      process.exit(1);
+    }
+  } else {
+    // Stale lock file, remove it
+    fs.unlinkSync(lockFilePath);
+  }
+}
+fs.writeFileSync(lockFilePath, String(process.pid));
+function cleanupLockFile() {
+  if (fs.existsSync(lockFilePath)) {
+    try { fs.unlinkSync(lockFilePath); } catch (e) {}
+  }
+}
+process.on('exit', cleanupLockFile);
+process.on('SIGINT', () => { cleanupLockFile(); process.exit(0); });
+process.on('SIGTERM', () => { cleanupLockFile(); process.exit(0); });
+
+// --- BEGIN: Improved dev/test/production data directory safety check (less strict) ---
+const env = process.env.NODE_ENV;
+const dataDir = process.env.FOREST_DATA_DIR;
+const prodPattern = /^\.?forest-data$/i;
+const prodLikePattern = /prod|main|primary/i;
+
+if (env !== 'production') {
+  if (!dataDir || prodPattern.test(dataDir) || prodLikePattern.test(dataDir)) {
+    const msg = 'Refusing to run: In development or test mode, FOREST_DATA_DIR cannot point to the production data directory (".forest-data", or containing "prod", "main", or "primary").';
+    console.error(msg);
+    if (env === 'test' || process.env.JEST_WORKER_ID) {
+      throw new Error(msg);
+    } else {
+      process.exit(1);
+    }
+  }
+  // Warn that this is a dev/test run and data is isolated
+  console.warn(`⚠️  Running in ${env} mode. All data will be stored in: ${dataDir}`);
+}
+// --- END: Improved dev/test/production data directory safety check (less strict) ---

@@ -1,0 +1,68 @@
+{
+  "completedTopics": [
+    {
+      "topic": "Ad-hoc Task react_basics",
+      "description": "",
+      "completedAt": "2025-06-29T02:47:30.059Z",
+      "outcome": "Completed React basics successfully",
+      "learned": "Learned about components and props",
+      "difficulty": 3,
+      "energyAfter": 4,
+      "breakthrough": false,
+      "blockId": "react_basics",
+      "taskId": "react_basics"
+    },
+    {
+      "topic": "Ad-hoc Task react_basics",
+      "description": "",
+      "completedAt": "2025-06-29T02:47:43.866Z",
+      "outcome": "Completed React basics successfully",
+      "learned": "Learned about components and props",
+      "difficulty": 3,
+      "energyAfter": 4,
+      "breakthrough": false,
+      "blockId": "react_basics",
+      "taskId": "react_basics"
+    },
+    {
+      "topic": "Ad-hoc Task react_basics",
+      "description": "",
+      "completedAt": "2025-06-29T02:50:35.851Z",
+      "outcome": "Completed React basics successfully",
+      "learned": "Learned about components and props",
+      "difficulty": 3,
+      "energyAfter": 4,
+      "breakthrough": false,
+      "blockId": "react_basics",
+      "taskId": "react_basics"
+    }
+  ],
+  "insights": [],
+  "knowledgeGaps": [
+    {
+      "question": "How do React hooks work?",
+      "relatedTopic": "Ad-hoc Task react_basics",
+      "identified": "2025-06-29T02:47:30.059Z",
+      "priority": "medium"
+    },
+    {
+      "question": "How do React hooks work?",
+      "relatedTopic": "Ad-hoc Task react_basics",
+      "identified": "2025-06-29T02:47:43.866Z",
+      "priority": "medium"
+    },
+    {
+      "question": "How do React hooks work?",
+      "relatedTopic": "Ad-hoc Task react_basics",
+      "identified": "2025-06-29T02:50:35.851Z",
+      "priority": "medium"
+    }
+  ],
+  "skillProgression": {
+    "general": {
+      "level": 2,
+      "completedTasks": 3,
+      "totalEngagement": 15
+    }
+  }
+}

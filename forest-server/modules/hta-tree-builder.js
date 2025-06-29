@@ -1,3 +1,9 @@
+// ============================================
+// CANONICAL HTA TREE BUILDER IMPLEMENTATION
+// This is the ONLY supported and maintained version.
+// All other hta-tree-builder files are deprecated and must not be used.
+// ============================================
+
 // @ts-nocheck
 // ============================================
 // HTA DEEP HIERARCHY SYSTEM

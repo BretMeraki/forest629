@@ -8,6 +8,11 @@
 import fs from 'fs/promises';
 import path from 'path';
 
+if (!process.env.FOREST_DATA_DIR || !/test|tmp|demo/i.test(process.env.FOREST_DATA_DIR)) {
+  console.error('\u26a0\ufe0f  Refusing to run: FOREST_DATA_DIR is not set to a test/demo directory. Set FOREST_DATA_DIR to a safe, isolated path.');
+  process.exit(1);
+}
+
 // Sequential Thinking Framework
 class SequentialThinking {
   constructor() {

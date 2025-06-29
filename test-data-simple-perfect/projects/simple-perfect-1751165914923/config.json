@@ -1,0 +1,27 @@
+{
+  "id": "simple-perfect-1751165914923",
+  "goal": "Learn basic React development",
+  "specific_interests": [],
+  "learning_paths": [
+    {
+      "path_name": "general",
+      "priority": "high"
+    }
+  ],
+  "context": "Beginner developer wanting to learn frontend",
+  "constraints": {},
+  "existing_credentials": [],
+  "current_habits": {},
+  "life_structure_preferences": {
+    "wake_time": "08:00",
+    "sleep_time": "23:00",
+    "focus_duration": "25 minutes"
+  },
+  "urgency_level": "medium",
+  "success_metrics": [],
+  "created_at": "2025-06-29T02:58:34.923Z",
+  "knowledge_level": 1,
+  "skill_mappings": {},
+  "progress": 0,
+  "activePath": "general"
+}

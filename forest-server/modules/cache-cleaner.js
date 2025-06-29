@@ -27,7 +27,29 @@ export class CacheCleaner {
    * @param {Object} options - Clearing options
    * @returns {Object} Detailed report of what was cleared
    */
+  
+  // CACHE_PROTECTION_INSTALLED: Protect critical fixes from cache clearing
+  async validateCriticalFixes() {
+    console.log('🛡️ Validating critical fixes before cache clearing...');
+    
+    // Check HTA Bridge fix integrity
+    const htaBridgePath = path.join(__dirname, 'hta-bridge.js');
+    try {
+      const htaContent = await fs.readFile(htaBridgePath, 'utf8');
+      if (!htaContent.includes('PERMANENT_SCHEMA_FIX_INSTALLED')) {
+        throw new Error('HTA Bridge permanent fix missing - aborting cache clear');
+      }
+    } catch (error) {
+      console.error('❌ CRITICAL: Cache clearing aborted due to missing fixes:', error.message);
+      throw error;
+    }
+    
+    console.log('✅ Critical fixes validated - cache clearing can proceed');
+  }
+
   async clearAllCaches(options = {}) {
+    // Validate critical fixes before clearing
+    await this.validateCriticalFixes();
     const {
       clearLogs = false,
       clearTempFiles = true,

@@ -1,0 +1,24 @@
+{
+  "blocks": [
+    {
+      "id": "react_basics",
+      "type": "learning",
+      "title": "Ad-hoc Task react_basics",
+      "description": "",
+      "startTime": "2025-06-29T02:47:30.059Z",
+      "duration": "30 minutes",
+      "difficulty": 3,
+      "taskId": "react_basics",
+      "branch": "general",
+      "completed": true,
+      "priority": 200,
+      "completedAt": "2025-06-29T02:50:35.851Z",
+      "outcome": "Completed React basics successfully",
+      "learned": "Learned about components and props",
+      "nextQuestions": "How do React hooks work?",
+      "energyAfter": 4,
+      "difficultyRating": 3,
+      "breakthrough": false
+    }
+  ]
+}

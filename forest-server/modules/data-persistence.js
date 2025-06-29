@@ -14,6 +14,8 @@ export class DataPersistence {
   constructor(dataDir) {
     this.dataDir = dataDir;
     this.cacheManager = new CacheManager();
+    // CRITICAL FIX: Add file operation locks to prevent race conditions
+    this.fileLocks = new Map();
   }
 
   getProjectDir(projectId) {
@@ -82,6 +84,17 @@ export class DataPersistence {
   }
 
   async saveProjectData(projectId, fileName, data, transaction = null) {
+    // CRITICAL FIX: Implement file locking to prevent concurrent access
+    const lockKey = `${projectId}:${fileName}`;
+
+    // Wait for any existing operation on this file to complete
+    while (this.fileLocks.has(lockKey)) {
+      await new Promise(resolve => setTimeout(resolve, 10));
+    }
+
+    // Acquire lock
+    this.fileLocks.set(lockKey, true);
+
     try {
       // ENHANCED: Validate inputs with null checks
       if (!projectId || typeof projectId !== 'string') {
@@ -126,8 +139,9 @@ export class DataPersistence {
 
       // ENHANCED: Atomic write with validation
       await this._atomicWriteJSON(filePath, normalizedData);
-      
-      // Invalidate cache
+
+      // CRITICAL FIX: Only invalidate cache AFTER successful write
+      // This prevents cache corruption when atomic writes fail
       this.invalidateProjectCache(projectId);
       
       logger.debug('[DataPersistence] Project data saved', {
@@ -145,6 +159,10 @@ export class DataPersistence {
         hasTransaction: !!transaction
       });
       throw error;
+    } finally {
+      // CRITICAL FIX: Always release the file lock
+      const lockKey = `${projectId}:${fileName}`;
+      this.fileLocks.delete(lockKey);
     }
   }
 
@@ -186,6 +204,17 @@ export class DataPersistence {
   }
 
   async savePathData(projectId, pathName, fileName, data, transaction = null) {
+    // CRITICAL FIX: Implement file locking to prevent concurrent access
+    const lockKey = `${projectId}:${pathName}:${fileName}`;
+
+    // Wait for any existing operation on this file to complete
+    while (this.fileLocks.has(lockKey)) {
+      await new Promise(resolve => setTimeout(resolve, 10));
+    }
+
+    // Acquire lock
+    this.fileLocks.set(lockKey, true);
+
     try {
       // ENHANCED: Validate inputs with null checks
       if (!projectId || typeof projectId !== 'string') {
@@ -234,8 +263,9 @@ export class DataPersistence {
 
       // ENHANCED: Atomic write with validation
       await this._atomicWriteJSON(filePath, normalizedData);
-      
-      // Invalidate cache
+
+      // CRITICAL FIX: Only invalidate cache AFTER successful write
+      // This prevents cache corruption when atomic writes fail
       this.invalidateProjectCache(projectId);
       
       logger.debug('[DataPersistence] Path data saved', {
@@ -255,6 +285,10 @@ export class DataPersistence {
         hasTransaction: !!transaction
       });
       throw error;
+    } finally {
+      // CRITICAL FIX: Always release the file lock
+      const lockKey = `${projectId}:${pathName}:${fileName}`;
+      this.fileLocks.delete(lockKey);
     }
   }
 

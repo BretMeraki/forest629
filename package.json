@@ -5,7 +5,9 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "validate-fixes": "node install-permanent-fixes.js --validate",
+    "repair-regression": "node install-permanent-fixes.js --repair"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "latest",
@@ -21,5 +23,14 @@
     "eslint-plugin-promise": "^7.2.1",
     "jest": "^30.0.1",
     "prettier": "^3.5.3"
+  },
+  "regressionProtection": {
+    "version": "1.0.0",
+    "installed": "2025-06-29T03:20:13.451Z",
+    "protectedFiles": [
+      "forest-server/modules/hta-bridge.js",
+      "forest-server/modules/cache-cleaner.js",
+      "forest-server/server-modular.js"
+    ]
   }
 }

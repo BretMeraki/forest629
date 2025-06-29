@@ -1,6 +1,6 @@
 // @ts-nocheck
-import { HtaTreeBuilder } from '../hta-tree-builder.js';
-import { TaskIntelligence } from '../task-intelligence.js';
+import { HtaTreeBuilder } from '../modules/hta-tree-builder.js';
+import { TaskIntelligence } from '../modules/task-intelligence.js';
 
 // Lightweight in-memory data persistence mock
 class MemoryDP {

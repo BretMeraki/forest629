@@ -11,6 +11,13 @@ import { getForestLogger } from '../modules/winston-logger.js';
 
 const logger = getForestLogger({ module: 'DomainContaminationDetector' });
 
+// Suppress logs in test environments
+const isSilentTest = process.env.NODE_ENV === 'test' || process.env.JEST_WORKER_ID || process.env.SILENT_TEST;
+if (isSilentTest) {
+  console.log = () => {};
+  console.error = () => {};
+}
+
 // Domain-specific patterns that should NEVER appear in code
 const CONTAMINATION_PATTERNS = {
   // Career/Job specific

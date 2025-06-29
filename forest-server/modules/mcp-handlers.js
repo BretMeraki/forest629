@@ -95,15 +95,20 @@ export class McpHandlers {
           params: z.any().optional(),
           id: z.union([z.number(), z.string()]).optional()
         });
-        
-        // Verify the schema has the parse method
-        if (typeof schema.parse !== 'function') {
-          throw new Error(`Schema for ${methodName} does not have parse method`);
+
+        // Verify the schema has the parse method - this is critical for MCP compatibility
+        if (!schema || typeof schema.parse !== 'function') {
+          throw new Error(`Schema for ${methodName} does not have parse method. Schema type: ${typeof schema}, parse type: ${typeof schema?.parse}`);
         }
-        
+
         return schema;
       } catch (error) {
-        console.error(`Error creating schema for ${methodName}:`, error);
+        // Enhanced error logging for debugging
+        debugLogger.logCritical('SCHEMA_CREATION_ERROR', {
+          methodName,
+          error: error.message,
+          stack: error.stack
+        });
         throw new Error(`Failed to create schema for ${methodName}: ${error.message}`);
       }
     };
@@ -127,18 +132,34 @@ export class McpHandlers {
       };
 
       debugLogger.logEvent('SETTING_RESOURCES_HANDLER');
-      
-      // Verify schema before using
-      if (!resourcesSchema || typeof resourcesSchema.parse !== 'function') {
-        throw new Error('resourcesSchema is invalid or missing parse method');
+
+      // Enhanced schema verification with detailed error reporting
+      if (!resourcesSchema) {
+        throw new Error('resourcesSchema is null or undefined');
+      }
+      if (typeof resourcesSchema.parse !== 'function') {
+        debugLogger.logCritical('RESOURCES_SCHEMA_INVALID', {
+          schemaType: typeof resourcesSchema,
+          parseType: typeof resourcesSchema.parse,
+          schemaKeys: Object.keys(resourcesSchema || {})
+        });
+        throw new Error(`resourcesSchema.parse is not a function. Schema type: ${typeof resourcesSchema}, parse type: ${typeof resourcesSchema.parse}`);
       }
       this.server.setRequestHandler(resourcesSchema, emptyArrayResponder('resources'));
-      
+
       debugLogger.logEvent('SETTING_PROMPTS_HANDLER');
-      
-      // Verify schema before using
-      if (!promptsSchema || typeof promptsSchema.parse !== 'function') {
-        throw new Error('promptsSchema is invalid or missing parse method');
+
+      // Enhanced schema verification with detailed error reporting
+      if (!promptsSchema) {
+        throw new Error('promptsSchema is null or undefined');
+      }
+      if (typeof promptsSchema.parse !== 'function') {
+        debugLogger.logCritical('PROMPTS_SCHEMA_INVALID', {
+          schemaType: typeof promptsSchema,
+          parseType: typeof promptsSchema.parse,
+          schemaKeys: Object.keys(promptsSchema || {})
+        });
+        throw new Error(`promptsSchema.parse is not a function. Schema type: ${typeof promptsSchema}, parse type: ${typeof promptsSchema.parse}`);
       }
       this.server.setRequestHandler(promptsSchema, emptyArrayResponder('prompts'));
       debugLogger.logEvent('LEGACY_SCHEMAS_COMPLETE');
