@@ -5,13 +5,40 @@
 
 import { calculateProgress, getReadyNodes } from '../utils/hta-metrics.js';
 
+/**
+ * @typedef {Object} Progress
+ * @property {number} completed
+ * @property {number} total
+ * @property {number} percentage
+ * @property {number} available
+ * @property {number} blocked
+ * @property {number} frontier
+ */
+
+/**
+ * @typedef {Object} HTAData
+ * @property {Array<any>} strategicBranches
+ * @property {Array<any>} frontierNodes
+ * @property {string} goal
+ * @property {string} learningStyle
+ * @property {string} lastUpdated
+ */
+
 export class HtaStatus {
+  /**
+   * @param {any} dataPersistence
+   * @param {any} projectManagement
+   */
   constructor(dataPersistence, projectManagement) {
     this.dataPersistence = dataPersistence;
     this.projectManagement = projectManagement;
   }
 
-  async getHTAStatus() {
+  /**
+   * @param {any} args
+   * @returns {Promise<Object>}
+   */
+  async getHTAStatus(args) {
     try {
       const projectId = await this.projectManagement.requireActiveProject();
       const config = await this.dataPersistence.loadProjectData(projectId, 'config.json');
@@ -34,6 +61,13 @@ export class HtaStatus {
         };
       }
 
+      // --- Orphaned task detection logic (same as generateStatusReport) ---
+      const branches = htaData.strategicBranches || [];
+      const nodes = htaData.frontierNodes || [];
+      const branchTitles = branches.map(b => b.title);
+      const orphaned = nodes.filter(t => !t.branch || !branchTitles.includes(t.branch));
+      const bug_present = orphaned.length > 0;
+
       const statusReport = this.generateStatusReport(htaData, activePath);
 
       return {
@@ -45,13 +79,15 @@ export class HtaStatus {
         ],
         hta_status: {
           path: activePath,
-          strategic_branches: htaData.strategicBranches || [],
-          frontierNodes: htaData.frontierNodes || [],
+          strategic_branches: branches,
+          frontierNodes: nodes,
           progress: calculateProgress(htaData),
           last_updated: htaData.lastUpdated,
+          orphaned_tasks: orphaned,
+          bug_present,
         },
       };
-    } catch (error) {
+    } catch (/** @type {any} */ error) {
       await this.dataPersistence.logError('getHTAStatus', error);
       return {
         content: [
@@ -64,6 +100,11 @@ export class HtaStatus {
     }
   }
 
+  /**
+   * @param {string} projectId
+   * @param {string} pathName
+   * @returns {Promise<Object>}
+   */
   async loadPathHTA(projectId, pathName) {
     if (pathName === 'general') {
       return await this.dataPersistence.loadProjectData(projectId, 'hta.json');
@@ -72,56 +113,72 @@ export class HtaStatus {
     }
   }
 
+  /**
+   * @param {any} htaData
+   * @param {string} pathName
+   * @returns {string}
+   */
   generateStatusReport(htaData, pathName) {
-    const branches = htaData.strategicBranches || [];
-    const nodes = htaData.frontierNodes || htaData.frontierNodes || [];
-    const progress = calculateProgress(htaData);
+    const branches = (htaData).strategicBranches || [];
+    const nodes = (htaData).frontierNodes || (htaData).frontierNodes || [];
+    /** @type {Progress} */
+    const progress = /** @type {Progress} */ (calculateProgress(htaData));
 
-    let report = `**HTA Tree Status - ${pathName} Path**\\n\\n`;
-    report += `**Goal**: ${htaData.goal || 'Not specified'}\\n`;
-    report += `**Progress**: ${progress.percentage}% (${progress.completed}/${progress.total} tasks)\\n`;
-    report += `**Learning Style**: ${htaData.learningStyle || 'mixed'}\\n\\n`;
+    let report = `**HTA Tree Status - ${pathName} Path**\n\n`;
+    report += `**Goal**: ${(htaData).goal || 'Not specified'}\n`;
+    report += `**Progress**: ${progress.percentage}% (${progress.completed}/${progress.total} tasks)\n`;
+    report += `**Learning Style**: ${(htaData).learningStyle || 'mixed'}\n\n`;
 
     // Strategic Branches Status
-    report += `**Strategic Branches** (${branches.length}):\\n`;
+    report += `**Strategic Branches** (${branches.length}):\n`;
     for (const branch of branches) {
-      const branchNodes = nodes.filter(n => n.branch === branch.id);
-      const completedBranchNodes = branchNodes.filter(n => n.completed);
+      const branchNodes = nodes.filter((n) => (n).branch === branch.title);
+      const completedBranchNodes = branchNodes.filter((n) => (n).completed);
       const branchProgress =
         branchNodes.length > 0
           ? Math.round((completedBranchNodes.length / branchNodes.length) * 100)
           : 0;
 
       const status = branch.completed ? '[DONE]' : branchProgress > 0 ? '[ACTIVE]' : '[PENDING]';
-      report += `${status} **${branch.title}** - ${branchProgress}% (${completedBranchNodes.length}/${branchNodes.length})\\n`;
+      report += `${status} **${branch.title}** - ${branchProgress}% (${completedBranchNodes.length}/${branchNodes.length})\n`;
+    }
+
+    // Orphaned Tasks Warning
+    const branchTitles = branches.map(b => b.title);
+    const orphaned = nodes.filter(t => !t.branch || !branchTitles.includes(t.branch));
+    if (orphaned.length > 0) {
+      report += `\n⚠️ **Warning: Orphaned Tasks Detected!** These tasks are not mapped to any branch and will not appear in progress calculations.\n`;
+      for (const t of orphaned) {
+        report += `- ${t.title || '(untitled task)'}\n`;
+      }
     }
 
     // Ready Tasks - use unified utility
     const readyNodes = getReadyNodes(htaData);
-    report += `\\n**Ready Tasks** (${readyNodes.length}):\\n`;
+    report += `\n**Ready Tasks** (${readyNodes.length}):\n`;
 
     if (readyNodes.length === 0) {
-      report += '- No tasks ready - check prerequisites or build new tasks\\n';
+      report += '- No tasks ready - check prerequisites or build new tasks\n';
     } else {
       for (const node of readyNodes.slice(0, 5)) {
         // Show top 5
-        const difficultyLevel = `${node.difficulty || 1}/5`;
-        report += `- **${node.title}** (${difficultyLevel} difficulty, ${node.duration || '30 min'})\\n`;
+        const difficultyLevel = `${(node).difficulty || 1}/5`;
+        report += `- **${(node).title}** (${difficultyLevel} difficulty, ${(node).duration || '30 min'})\n`;
       }
 
       if (readyNodes.length > 5) {
-        report += `• ... and ${readyNodes.length - 5} more tasks\\n`;
+        report += `• ... and ${readyNodes.length - 5} more tasks\n`;
       }
     }
 
     // Next Actions
-    report += '\\n**Next Actions**:\\n';
+    report += '\n**Next Actions**:\n';
     if (readyNodes.length > 0) {
-      report += '- Use `get_next_task` to get the optimal next task\\n';
-      report += '- Use `generate_daily_schedule` for comprehensive planning\\n';
+      report += '- Use `get_next_task` to get the optimal next task\n';
+      report += '- Use `generate_daily_schedule` for comprehensive planning\n';
     } else {
-      report += '- Use `evolve_strategy` to generate new tasks\\n';
-      report += '- Use `build_hta_tree` to rebuild the learning path\\n';
+      report += '- Use `evolve_strategy` to generate new tasks\n';
+      report += '- Use `build_hta_tree` to rebuild the learning path\n';
     }
 
     return report;
@@ -129,9 +186,14 @@ export class HtaStatus {
 
   // Removed duplicate calculateProgress and getReadyNodes methods - using utility functions directly
 
+  /**
+   * @param {any} branchId
+   * @param {any[]} nodes
+   * @returns {Object}
+   */
   getBranchProgress(branchId, nodes) {
-    const branchNodes = nodes.filter(n => n.branch === branchId);
-    const completedNodes = branchNodes.filter(n => n.completed);
+    const branchNodes = nodes.filter((/** @type {any} */ n) => n.branch === branchId);
+    const completedNodes = branchNodes.filter((/** @type {any} */ n) => n.completed);
 
     return {
       total: branchNodes.length,

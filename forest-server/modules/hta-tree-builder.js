@@ -913,7 +913,8 @@ ${travellerConstraintBlock}`;
     // Always start with foundation
     branches.push({
       id: 'foundation',
-      name: 'Foundation',
+      title: 'Foundation',  // FIX: Use 'title' instead of 'name' for consistency
+      name: 'Foundation',   // Keep 'name' for backward compatibility
       description: 'Core knowledge and fundamental understanding',
       priority: 1
     });
@@ -924,7 +925,8 @@ ${travellerConstraintBlock}`;
         const branchId = area.toLowerCase().replace(/[^a-z0-9]/g, '_');
         branches.push({
           id: branchId,
-          name: area,
+          title: area,  // FIX: Use 'title' instead of 'name' for consistency
+          name: area,   // Keep 'name' for backward compatibility
           description: `Strategic development in ${area}`,
           priority: index + 2
         });
@@ -932,11 +934,11 @@ ${travellerConstraintBlock}`;
     } else {
       // Generate generic strategic branches that work for any domain
       const genericBranches = [
-        { id: 'research_analysis', name: 'Research & Analysis', description: 'Information gathering and strategic planning', priority: 2 },
-        { id: 'capability_building', name: 'Capability Building', description: 'Skills and resource development', priority: 3 },
-        { id: 'planning_design', name: 'Planning & Design', description: 'Strategic planning and solution design', priority: 4 },
-        { id: 'implementation', name: 'Implementation', description: 'Active execution and progress tracking', priority: 5 },
-        { id: 'validation_optimization', name: 'Validation & Optimization', description: 'Testing, refinement, and performance improvement', priority: 6 }
+        { id: 'research_analysis', title: 'Research & Analysis', name: 'Research & Analysis', description: 'Information gathering and strategic planning', priority: 2 },
+        { id: 'capability_building', title: 'Capability Building', name: 'Capability Building', description: 'Skills and resource development', priority: 3 },
+        { id: 'planning_design', title: 'Planning & Design', name: 'Planning & Design', description: 'Strategic planning and solution design', priority: 4 },
+        { id: 'implementation', title: 'Implementation', name: 'Implementation', description: 'Active execution and progress tracking', priority: 5 },
+        { id: 'validation_optimization', title: 'Validation & Optimization', name: 'Validation & Optimization', description: 'Testing, refinement, and performance improvement', priority: 6 }
       ];
 
       branches.push(...genericBranches);
@@ -979,7 +981,8 @@ ${travellerConstraintBlock}`;
         description: task.description,
         difficulty,
         duration,
-        branch: branch.id,
+        // FIX: Use branch.title instead of branch.id to match filtering expectations
+        branch: branch.title || branch.name || branch.id,
         prerequisites: i > 0 ? [`${branch.id}_task_${taskNumber - 1}`] : [],
         completed: false,
         generated: true,

@@ -612,6 +612,9 @@ let forestLoggerInstance = null;
 export async function getForestLogger(options = {}) {
   if (!forestLoggerInstance) {
     forestLoggerInstance = new ForestLogger(options);
+  }
+  // Always ensure the underlying winston logger is ready before returning
+  if (forestLoggerInstance.initPromise) {
     await forestLoggerInstance.initPromise;
   }
   return forestLoggerInstance;

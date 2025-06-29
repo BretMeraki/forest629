@@ -8,6 +8,15 @@ import { getDatedLogPath, writeJsonLine } from './logger-utils.js';
 import { ToolRegistry } from './utils/tool-registry.js';
 import { debugLogger } from './utils/debug-logger.js';
 
+// Redirect all console.* to stderr except for JSON-RPC output
+['log', 'info', 'warn'].forEach(function(fn) {
+  var original = console[fn];
+  console[fn] = function() {
+    process.stderr.write(Array.from(arguments).map(String).join(' ') + '\n');
+    // Optionally, call the original for debugging
+    // original.apply(console, arguments);
+  };
+});
 
 export class ToolRouter {
   constructor(server, forestServer) {
@@ -308,6 +317,52 @@ export class ToolRouter {
     // HTA Task Generation Tools
     this.toolRegistry.register('generate_hta_tasks', (args) => this.forestServer.storeGeneratedTasks(args.branch_tasks), 'hta');
     this.toolRegistry.register('get_generation_history', (args) => this.forestServer.getGenerationHistory(args.limit || 10), 'hta');
+
+    // Learning Tools
+    this.toolRegistry.register('upload_pdf', async (args) => {
+      // Feature flag guard – safest default is off
+      if (!process.env.ENABLE_PDF_UPLOAD) {
+        throw new Error('PDF upload feature is disabled. Start the server with ENABLE_PDF_UPLOAD=1 to enable.');
+      }
+
+      const pdfPath = args.path;
+      if (!pdfPath || typeof pdfPath !== 'string') {
+        throw new Error('Invalid or missing "path" parameter');
+      }
+
+      // Extract PDF text using existing LearnMCP extractor (no new deps)
+      const { PDFExtractor } = await import('../../LearnMCP/modules/content-extractors/pdf-extractor.js');
+      const extractor = new PDFExtractor();
+      const pdfData = await extractor.extract(pdfPath);
+
+      // Derive focus areas from extracted curriculum (if available)
+      const topics = (pdfData?.content?.curriculum?.modules || []).map(m => m.title).filter(Boolean);
+
+      // Build a deterministic short id from the path (for path_name)
+      const crypto = await import('crypto');
+      const fileId = crypto.createHash('sha256').update(pdfPath).digest('hex').slice(0, 10);
+      const pathName = `pdf_${fileId}`;
+
+      // Goal override uses the PDF title if present
+      const goalOverride = `Master material from ${pdfData?.metadata?.title || pdfPath}`;
+
+      // Immediately generate an HTA tree using existing Forest logic
+      const htaSummary = await this.forestServer.buildHTATree(
+        pathName,
+        'mixed',
+        topics.slice(0, 5), // first few topics as focus areas
+        goalOverride,
+        pdfPath // context override (stores original path)
+      );
+
+      return {
+        status: 'ok',
+        reference: `pdf::${fileId}`,
+        path_name: pathName,
+        topics: topics.slice(0, 10),
+        hta_summary: htaSummary
+      };
+    }, 'learning');
   }
 
   setupRouter() {

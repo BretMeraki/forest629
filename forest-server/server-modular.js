@@ -89,6 +89,16 @@ class MinimalDebugIntegration {
   }
 }
 
+// Redirect all console.* to stderr except for JSON-RPC output
+['log', 'info', 'warn'].forEach(fn => {
+  const original = console[fn];
+  console[fn] = (...args) => {
+    process.stderr.write(args.map(String).join(' ') + '\n');
+    // Optionally, call the original for debugging
+    // original(...args);
+  };
+});
+
 /**
  * Clean Forest Server Class - NO HARDCODED RESPONSES
  * Orchestrates all the specialized modules to provide a cohesive MCP server experience

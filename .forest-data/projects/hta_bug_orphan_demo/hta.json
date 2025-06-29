@@ -1,0 +1,38 @@
+{
+  "pathName": "demo",
+  "goal": "Test orphaned tasks",
+  "strategicBranches": [
+    {
+      "id": "branch_1",
+      "title": "Foundation"
+    },
+    {
+      "id": "branch_2",
+      "title": "Application"
+    }
+  ],
+  "frontierNodes": [
+    {
+      "id": "task_1",
+      "title": "Learn basics",
+      "branch": "Foundation",
+      "completed": false
+    },
+    {
+      "id": "task_2",
+      "title": "Orphan task (bad branch)",
+      "branch": "Nonexistent",
+      "completed": false
+    },
+    {
+      "id": "task_3",
+      "title": "Orphan task (no branch)",
+      "completed": false
+    }
+  ],
+  "hierarchyMetadata": {
+    "total_tasks": 3,
+    "total_branches": 2,
+    "completed_tasks": 0
+  }
+}

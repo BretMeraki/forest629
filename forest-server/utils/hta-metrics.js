@@ -46,13 +46,24 @@ export function getAvailableNodes(htaData) {
   
   const frontierNodes = htaData.frontierNodes || htaData.frontierNodes || [];
   if (!Array.isArray(frontierNodes)) return [];
+
+  // Get all valid branch identifiers (id, title, name) from strategic branches
+  const strategicBranches = htaData.strategicBranches || [];
+  const validBranchIdentifiers = new Set();
   
+  strategicBranches.forEach(branch => {
+    if (branch.id) validBranchIdentifiers.add(branch.id);
+    if (branch.title) validBranchIdentifiers.add(branch.title);
+    if (branch.name) validBranchIdentifiers.add(branch.name);
+  });
+
   return frontierNodes.filter(node => 
     node && 
     !node.completed && 
     !node.blocked && 
     node.status !== 'blocked' &&
-    node.status !== 'completed'
+    node.status !== 'completed' &&
+    node.branch && validBranchIdentifiers.has(node.branch)
   );
 }
 
@@ -126,14 +137,48 @@ export function countTasksByBranch(htaData, branchName) {
   const frontierNodes = htaData.frontierNodes || htaData.frontierNodes || [];
   const completedNodes = htaData.completedNodes || [];
   
-  // Filter frontier nodes by branch
+  // FIX: Handle both branch.id and branch.title matching
+  // First try to find a strategic branch that matches the branchName
+  const strategicBranches = htaData.strategicBranches || [];
+  let targetBranchIdentifier = branchName;
+  
+  // Check if branchName matches a strategic branch title, if so get the corresponding identifier
+  const matchingBranch = strategicBranches.find(b => 
+    b.title === branchName || b.name === branchName || b.id === branchName
+  );
+  
+  if (matchingBranch) {
+    // Use the title as the primary identifier since that's what tasks should reference
+    targetBranchIdentifier = matchingBranch.title || matchingBranch.name || matchingBranch.id;
+  }
+  
+  // Filter frontier nodes by branch (try both the original branchName and the resolved identifier)
   const branchFrontierNodes = Array.isArray(frontierNodes) 
-    ? frontierNodes.filter(node => node && node.branch === branchName)
+    ? frontierNodes.filter(node => 
+        node && (
+          node.branch === branchName || 
+          node.branch === targetBranchIdentifier ||
+          // Fallback: also check if node.branch matches any strategic branch that has the target title
+          strategicBranches.some(b => 
+            (b.title === targetBranchIdentifier || b.name === targetBranchIdentifier) && 
+            (node.branch === b.id || node.branch === b.title || node.branch === b.name)
+          )
+        )
+      )
     : [];
   
-  // Filter completed nodes by branch
+  // Filter completed nodes by branch using the same logic
   const branchCompletedNodes = Array.isArray(completedNodes)
-    ? completedNodes.filter(node => node && node.branch === branchName)
+    ? completedNodes.filter(node => 
+        node && (
+          node.branch === branchName || 
+          node.branch === targetBranchIdentifier ||
+          strategicBranches.some(b => 
+            (b.title === targetBranchIdentifier || b.name === targetBranchIdentifier) && 
+            (node.branch === b.id || node.branch === b.title || node.branch === b.name)
+          )
+        )
+      )
     : [];
   
   const completedInFrontier = branchFrontierNodes.filter(n => n.completed).length;

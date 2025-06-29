@@ -1,0 +1,33 @@
+{
+  "pathName": "demo",
+  "goal": "Test branch-task mapping",
+  "strategicBranches": [
+    {
+      "id": "branch_1",
+      "title": "Foundation"
+    },
+    {
+      "id": "branch_2",
+      "title": "Application"
+    }
+  ],
+  "frontierNodes": [
+    {
+      "id": "task_1",
+      "title": "Learn basics",
+      "branch": "Foundation",
+      "completed": false
+    },
+    {
+      "id": "task_2",
+      "title": "Apply basics",
+      "branch": "Application",
+      "completed": false
+    }
+  ],
+  "hierarchyMetadata": {
+    "total_tasks": 2,
+    "total_branches": 2,
+    "completed_tasks": 0
+  }
+}

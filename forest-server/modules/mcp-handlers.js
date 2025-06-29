@@ -936,6 +936,20 @@ export class McpHandlers {
             }
           }
         }
+      },
+      {
+        name: 'upload_pdf',
+        description: 'Upload a PDF, analyze its content, and automatically generate an HTA curriculum based on the extracted topics (feature-flagged via ENABLE_PDF_UPLOAD)',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            path: {
+              type: 'string',
+              description: 'Absolute/relative path or URL to the PDF file to ingest'
+            }
+          },
+          required: ['path']
+        }
       }
     ];
   }

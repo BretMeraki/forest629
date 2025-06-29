@@ -109,16 +109,34 @@ export class CacheCleaner {
 
       // Clear DataPersistence cache
       if (this.forestServer?.dataPersistence?.cacheManager) {
-        const stats = this.forestServer.dataPersistence.getCacheStats();
-        totalCleared += stats.totalEntries;
-        this.forestServer.dataPersistence.clearCache();
+        try {
+          const stats = this.forestServer.dataPersistence.getCacheStats();
+          if (stats && typeof stats.totalEntries === 'number') {
+            totalCleared += stats.totalEntries;
+          }
+          this.forestServer.dataPersistence.clearCache();
+        } catch (error) {
+          report.details.errors.push({
+            operation: 'clearDataPersistenceCache',
+            error: error.message
+          });
+        }
       }
 
       // Clear any other cache managers
       if (this.forestServer?.cacheManager) {
-        const stats = this.forestServer.cacheManager.getCacheStats();
-        totalCleared += stats.totalEntries;
-        this.forestServer.cacheManager.clearCache();
+        try {
+          const stats = this.forestServer.cacheManager.getCacheStats();
+          if (stats && typeof stats.totalEntries === 'number') {
+            totalCleared += stats.totalEntries;
+          }
+          this.forestServer.cacheManager.clearCache();
+        } catch (error) {
+          report.details.errors.push({
+            operation: 'clearCacheManager',
+            error: error.message
+          });
+        }
       }
 
       // Clear module-level caches
