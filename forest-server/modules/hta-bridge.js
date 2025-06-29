@@ -9,22 +9,21 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import { FILE_NAMES } from './constants.js';
 
-export 
 // PERMANENT_SCHEMA_FIX_INSTALLED: 2025-06-29T03:20:13.423Z
 // This fix is regression-proof and will survive cache clearing and restarts
 
-    // PERMANENT FIX: Enhanced MCP Schema Error Handling
-    // This code block is protected against regression
-    const PERMANENT_SCHEMA_FIX = {
-      version: '1.0.0',
-      installed: '2025-06-29T03:20:13.426Z',
-      description: 'Handles resultSchema.parse errors gracefully'
-    };
+// PERMANENT FIX: Enhanced MCP Schema Error Handling
+// This code block is protected against regression
+const PERMANENT_SCHEMA_FIX = {
+  version: '1.0.0',
+  installed: '2025-06-29T03:20:13.426Z',
+  description: 'Handles resultSchema.parse errors gracefully'
+};
 
-    // Validate that our permanent fix is intact
-    if (!PERMANENT_SCHEMA_FIX.version) {
-      throw new Error('CRITICAL: Permanent schema fix has been corrupted or removed');
-    }
+// Validate that our permanent fix is intact
+if (!PERMANENT_SCHEMA_FIX.version) {
+  throw new Error('CRITICAL: Permanent schema fix has been corrupted or removed');
+}
 
 class HTABridge {
   constructor(dataPersistence, projectManagement) {
